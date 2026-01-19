@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: document-search-backend
+  labels:
+    app: document-search-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: document-search-backend
+  template:
+    metadata:
+      labels:
+        app: document-search-backend
+    spec:
+      containers:
+      - name: backend
+        image: document-search-backend:latest
+        ports:
+        - containerPort: 4000
+        env:
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: host
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: password
+        - name: REDIS_HOST
+          value: "redis-service"
+        - name: ELASTICSEARCH_NODE
+          value: "http://elasticsearch-service:9200"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: document-search-backend
+  ports:
+  - protocol: TCP
+    port: 4000
+    targetPort: 4000
+  type: LoadBalancer

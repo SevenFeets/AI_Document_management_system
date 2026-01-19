@@ -1,0 +1,11 @@
+{
+  "name": "document-processor-lambda",
+  "version": "1.0.0",
+  "description": "AWS Lambda function for document processing",
+  "main": "index.js",
+  "dependencies": {
+    "aws-sdk": "^2.1500.0",
+    "pdf-parse": "^1.1.1",
+    "mammoth": "^1.6.0"
+  }
+}

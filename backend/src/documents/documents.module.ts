@@ -1,0 +1,14 @@
+import { Module } from '@nestjs/common'
+import { TypeOrmModule } from '@nestjs/typeorm'
+import { DocumentsController } from './documents.controller'
+import { DocumentsService } from './documents.service'
+import { DocumentEntity } from '../database/entities/document.entity'
+import { DocumentParserService } from './services/document-parser.service'
+
+@Module({
+  imports: [TypeOrmModule.forFeature([DocumentEntity])],
+  controllers: [DocumentsController],
+  providers: [DocumentsService, DocumentParserService],
+  exports: [DocumentsService],
+})
+export class DocumentsModule {}

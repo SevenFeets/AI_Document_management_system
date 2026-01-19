@@ -1,0 +1,56 @@
+{
+  "dashboard": {
+    "title": "Document Search System Dashboard",
+    "tags": ["document-search", "monitoring"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Document Upload Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(document_uploads_total[5m])",
+            "legendFormat": "Uploads/sec"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Search Queries",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(search_queries_total[5m])",
+            "legendFormat": "Queries/sec"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Document Processing Queue",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "document_queue_size",
+            "legendFormat": "Queue Size"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "System Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up",
+            "legendFormat": "System Status"
+          }
+        ]
+      }
+    ],
+    "refresh": "10s",
+    "schemaVersion": 16,
+    "version": 1
+  }
+}
