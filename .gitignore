@@ -37,4 +37,7 @@ terraform/.terraform.lock.hcl
 coverage/
 .nyc_output/
 
+# Local file uploads (when not using S3)
+uploads/
+
 internalDocs/

@@ -12,7 +12,7 @@ import { ElasticsearchService } from './elasticsearch.service'
         maxRetries: 10,
         requestTimeout: 60000,
         pingTimeout: 3000,
-        sniffOnStart: true,
+        sniffOnStart: false, // Disabled for single-node local development
       }),
       inject: [ConfigService],
     }),
