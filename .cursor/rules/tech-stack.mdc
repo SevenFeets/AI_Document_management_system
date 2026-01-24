@@ -1,0 +1,357 @@
+---
+description: Technology stack, dependency versions, and best practices
+globs: **/package.json
+alwaysApply: false
+---
+
+# Technology Stack & Dependencies
+
+This document outlines the complete technology stack, dependency versions, and best practices for the AI-powered Document Search & Summarization application.
+
+## Stack Overview
+
+### Architecture Pattern
+- **Backend**: NestJS (Node.js framework) - RESTful API
+- **Frontend**: React SPA with Vite
+- **Database**: PostgreSQL (primary) + MongoDB (optional) + Elasticsearch (search)
+- **Queue**: Bull (Redis-based) + RabbitMQ (message broker)
+- **Infrastructure**: Docker, Kubernetes, Terraform
+- **Cloud**: AWS (S3, Lambda)
+
+## Backend Stack
+
+### Core Framework
+
+| Package | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| `@nestjs/core` | `^10.2.10` | NestJS core framework | ✅ Latest stable v10. Use dependency injection pattern. Follow module-first architecture. |
+| `@nestjs/common` | `^10.2.10` | Common NestJS utilities | ✅ Keep in sync with core version. Use decorators for validation and transformation. |
+| `@nestjs/platform-express` | `^10.2.10` | Express adapter | ✅ Default HTTP adapter. Use for REST APIs. Consider Fastify for high-performance needs. |
+| `typescript` | `^5.2.2` | TypeScript compiler | ✅ TypeScript 5.x with strict mode recommended. Use `strict: true` in frontend, consider enabling in backend. |
+
+**Best Practices:**
+- NestJS v10 is the latest stable major version with excellent TypeScript support
+- Use decorators (`@Injectable()`, `@Controller()`, `@Module()`) consistently
+- Leverage dependency injection for testability
+- Follow the module-per-feature pattern
+
+### Database & ORM
+
+| Package | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| `typeorm` | `^0.3.17` | TypeORM ORM | ⚠️ **Version Note**: v0.3.x is the latest. Use Entity classes with decorators. Consider migrations for schema changes. |
+| `pg` | `^8.11.3` | PostgreSQL driver | ✅ Latest stable. Use connection pooling. Configure SSL for production. |
+| `mongoose` | `^8.0.3` | MongoDB ODM | ✅ Latest v8.x. Use schemas with TypeScript interfaces. Enable strict mode. |
+| `@nestjs/typeorm` | `^10.0.1` | NestJS TypeORM integration | ✅ Keep in sync with NestJS version. Use repository pattern. |
+| `@nestjs/mongoose` | `^10.0.2` | NestJS Mongoose integration | ✅ Use for MongoDB operations. Consider using alongside TypeORM if needed. |
+
+**Best Practices:**
+- **TypeORM v0.3.x**: Breaking changes from v0.2.x. Use DataSource instead of Connection.
+- Use migrations for all schema changes
+- Enable query logging in development, disable in production
+- Use transactions for multi-step operations
+- Consider using repository pattern for complex queries
+
+### Search & Indexing
+
+| Package | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| `@nestjs/elasticsearch` | `^10.0.1` | Elasticsearch integration | ✅ Keep in sync with NestJS. Use for full-text search. Configure index mappings properly. |
+| Elasticsearch (Docker) | `8.11.0` | Search engine | ✅ Latest stable 8.x. Enable security in production. Use proper index templates. |
+
+**Best Practices:**
+- Elasticsearch 8.x requires security configuration in production
+- Use index templates for consistent mappings
+- Implement proper index lifecycle management
+- Monitor cluster health and performance
+
+### Queue & Background Jobs
+
+| Package | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| `bull` | `^4.11.5` | Redis-based queue | ✅ Latest v4.x. Use for background job processing. Configure retry strategies. |
+| `@nestjs/bull` | `^10.0.1` | NestJS Bull integration | ✅ Use processors for async tasks. Implement proper error handling. |
+| `redis` | `^4.6.11` | Redis client | ✅ Latest v4.x. Use connection pooling. Configure timeouts. |
+| `amqplib` | `^0.10.3` | RabbitMQ client | ✅ Use for message broker patterns. Implement proper acknowledgment. |
+| Redis (Docker) | `7-alpine` | Redis server | ✅ Latest stable 7.x. Use persistence in production. |
+
+**Best Practices:**
+- Bull v4.x: Use named queues, configure concurrency limits
+- Implement job retry logic with exponential backoff
+- Use Redis persistence for critical jobs
+- Monitor queue lengths and processing times
+- Use RabbitMQ for complex routing scenarios
+
+### AI & Document Processing
+
+| Package | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| `langchain` | `^1.2.10` | LangChain framework | ⚠️ **Version Note**: v1.x has breaking changes from v0.x. Use chains for document processing. |
+| `@langchain/openai` | `^1.2.2` | OpenAI integration | ✅ Use for LLM interactions. Implement rate limiting. Handle API errors gracefully. |
+| `@langchain/community` | `^1.1.4` | Community integrations | ✅ Use for additional integrations. Check compatibility with main langchain version. |
+| `pdf-parse` | `^1.1.1` | PDF parsing | ✅ Use for PDF text extraction. Handle large files with streaming. |
+| `mammoth` | `^1.6.0` | DOCX parsing | ✅ Use for Word document processing. Handle embedded images separately. |
+
+**Best Practices:**
+- **LangChain v1.x**: Major refactor from v0.x. Use new chain syntax. Check migration guide.
+- Implement streaming for large documents
+- Cache embeddings when possible
+- Use proper error handling for document parsing failures
+- Consider chunking large documents for processing
+
+### AWS Integration
+
+| Package | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| `@aws-sdk/client-s3` | `^3.490.0` | AWS S3 client (v3) | ✅ **AWS SDK v3**: Use modular imports. Configure credentials properly. Use presigned URLs for uploads. |
+| `@aws-sdk/client-lambda` | `^3.490.0` | AWS Lambda client (v3) | ✅ Use for serverless document processing. Implement proper error handling. |
+
+**Best Practices:**
+- **AWS SDK v3**: Modular architecture, smaller bundle size. Use specific client imports.
+- Configure IAM roles properly
+- Use presigned URLs for secure file uploads
+- Implement retry logic with exponential backoff
+- Monitor AWS service quotas and limits
+
+### Validation & Transformation
+
+| Package | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| `class-validator` | `^0.14.0` | Validation decorators | ✅ Use DTOs with validation. Combine with class-transformer. |
+| `class-transformer` | `^0.5.1` | Object transformation | ✅ Use for DTOs and entity transformations. Enable `excludeExtraneousValues` for security. |
+
+**Best Practices:**
+- Use DTOs for all API inputs
+- Enable validation globally in NestJS
+- Use transformation for sanitizing data
+- Implement custom validators for complex rules
+
+### File Upload
+
+| Package | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| `multer` | `^1.4.5-lts.1` | File upload middleware | ✅ LTS version. Configure file size limits. Validate file types. |
+
+**Best Practices:**
+- Set appropriate file size limits
+- Validate file MIME types
+- Use streaming for large files
+- Store files in S3, not local filesystem
+
+### Configuration
+
+| Package | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| `@nestjs/config` | `^3.1.1` | Configuration management | ✅ Use environment variables. Validate config on startup. Use ConfigModule.forRoot(). |
+
+**Best Practices:**
+- Use `.env` files for local development
+- Validate configuration schema
+- Use different configs for different environments
+- Never commit secrets to version control
+
+### Reactive Programming
+
+| Package | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| `rxjs` | `^7.8.1` | Reactive extensions | ✅ Latest v7.x. Use observables for async operations. Implement proper error handling. |
+
+**Best Practices:**
+- Use RxJS operators for data transformation
+- Implement proper subscription management
+- Use async pipes in templates (if applicable)
+- Handle errors with catchError operator
+
+## Frontend Stack
+
+### Core Framework
+
+| Package | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| `react` | `^18.2.0` | React library | ✅ React 18 with concurrent features. Use hooks consistently. Avoid class components. |
+| `react-dom` | `^18.2.0` | React DOM renderer | ✅ Keep in sync with React version. Use createRoot() API. |
+| `typescript` | `^5.2.2` | TypeScript compiler | ✅ Use strict mode. Define proper types for props and state. |
+
+**Best Practices:**
+- React 18: Use concurrent features (Suspense, useTransition)
+- Use functional components with hooks
+- Implement proper TypeScript types for all components
+- Use React.memo() for performance optimization when needed
+
+### Build Tool
+
+| Package | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| `vite` | `^5.0.8` | Build tool and dev server | ✅ Latest v5.x. Fast HMR. Use environment variables with VITE_ prefix. |
+| `@vitejs/plugin-react` | `^4.2.1` | React plugin for Vite | ✅ Keep updated with Vite version. |
+
+**Best Practices:**
+- Vite 5.x: Fast development experience
+- Use environment variables with `VITE_` prefix
+- Configure build optimizations for production
+- Use code splitting for better performance
+
+### Routing
+
+| Package | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| `react-router-dom` | `^6.20.0` | React Router | ✅ Latest v6.x. Use new data APIs (loaders, actions). Use nested routes. |
+
+**Best Practices:**
+- React Router v6: Use new APIs (useLoaderData, useActionData)
+- Implement proper error boundaries
+- Use lazy loading for routes
+- Implement protected routes for authentication
+
+### State Management
+
+| Package | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| `@reduxjs/toolkit` | `^2.0.1` | Redux Toolkit | ✅ Latest v2.x. Use createSlice for reducers. Use RTK Query for API calls if needed. |
+| `react-redux` | `^9.0.4` | React Redux bindings | ✅ Latest v9.x. Use hooks (useSelector, useDispatch). Avoid connect() HOC. |
+
+**Best Practices:**
+- Redux Toolkit v2: Simplified Redux usage
+- Use createSlice for all state slices
+- Implement proper TypeScript types for state
+- Use selectors for computed values
+- Consider RTK Query for API state management
+
+### HTTP Client
+
+| Package | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| `axios` | `^1.6.2` | HTTP client | ✅ Latest v1.x. Configure interceptors for auth. Implement request/response interceptors. |
+
+**Best Practices:**
+- Configure base URL and default headers
+- Implement request/response interceptors
+- Handle errors globally
+- Use cancel tokens for request cancellation
+
+### UI Components & Styling
+
+| Package | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| `tailwindcss` | `^3.3.6` | Utility-first CSS | ✅ Latest v3.x. Use JIT mode. Configure custom theme. Use @apply sparingly. |
+| `lucide-react` | `^0.294.0` | Icon library | ✅ Tree-shakeable icons. Import specific icons. |
+| `react-dropzone` | `^14.2.3` | File upload component | ✅ Latest v14.x. Handle drag-and-drop. Validate files client-side. |
+| `react-hot-toast` | `^2.4.1` | Toast notifications | ✅ Use for user feedback. Configure position and duration. |
+
+**Best Practices:**
+- Tailwind CSS: Use utility classes, avoid custom CSS when possible
+- Implement responsive design with breakpoints
+- Use dark mode utilities if needed
+- Optimize bundle size with PurgeCSS
+
+### Development Tools
+
+| Package | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| `eslint` | `^8.55.0` | Linter | ✅ Use with TypeScript plugin. Configure strict rules. |
+| `@typescript-eslint/parser` | `^6.14.0` | TypeScript ESLint parser | ✅ Keep updated. Use recommended rules. |
+| `@typescript-eslint/eslint-plugin` | `^6.14.0` | TypeScript ESLint plugin | ✅ Enable type-aware linting rules. |
+
+**Best Practices:**
+- Use ESLint with TypeScript
+- Enable strict linting rules
+- Fix linting errors before committing
+- Use Prettier for code formatting
+
+## Infrastructure & Services
+
+### Container Runtime
+
+| Service | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| PostgreSQL | `15-alpine` | Primary database | ✅ PostgreSQL 15. Use connection pooling. Configure backups. |
+| Redis | `7-alpine` | Cache and queue | ✅ Redis 7. Enable persistence. Configure memory limits. |
+| Elasticsearch | `8.11.0` | Search engine | ✅ Elasticsearch 8.x. Enable security in production. Configure heap size. |
+| RabbitMQ | `3-management-alpine` | Message broker | ✅ RabbitMQ 3.x. Use management plugin. Configure queues properly. |
+| Grafana | `latest` | Monitoring | ✅ Use for observability. Configure dashboards and alerts. |
+
+**Best Practices:**
+- Use Alpine images for smaller size
+- Configure health checks for all services
+- Use volumes for data persistence
+- Set appropriate resource limits
+- Enable security features in production
+
+## Lambda Function
+
+| Package | Version | Purpose | Best Practices |
+|---------|---------|---------|----------------|
+| `aws-sdk` | `^2.1500.0` | AWS SDK v2 | ⚠️ **Legacy**: Consider migrating to AWS SDK v3 for better performance and smaller bundle size. |
+| `pdf-parse` | `^1.1.1` | PDF parsing | ✅ Same as backend. |
+| `mammoth` | `^1.6.0` | DOCX parsing | ✅ Same as backend. |
+
+**Best Practices:**
+- **AWS SDK v2**: Legacy version. Consider migrating to v3 for better performance
+- Keep Lambda functions small and focused
+- Use Lambda layers for shared dependencies
+- Configure appropriate timeout and memory
+- Implement proper error handling and logging
+
+## Version Compatibility Matrix
+
+### Critical Version Relationships
+
+- **NestJS v10.x** requires **TypeScript 5.x**
+- **React 18.x** requires **React DOM 18.x**
+- **Redux Toolkit v2.x** works with **React Redux v9.x**
+- **TypeORM v0.3.x** has breaking changes from v0.2.x
+- **LangChain v1.x** has breaking changes from v0.x
+- **AWS SDK v3** is modular (different from v2)
+
+### Node.js Version
+
+- **Recommended**: Node.js 18.x or 20.x LTS
+- Backend uses ES2021 target
+- Frontend uses ES2020 target
+
+## Security Best Practices
+
+1. **Dependencies**: Regularly update dependencies for security patches
+2. **Environment Variables**: Never commit secrets, use proper secret management
+3. **Validation**: Always validate user inputs on both client and server
+4. **Authentication**: Implement proper JWT or session management
+5. **CORS**: Configure CORS properly for production
+6. **HTTPS**: Always use HTTPS in production
+7. **Rate Limiting**: Implement rate limiting for APIs
+8. **File Upload**: Validate file types and sizes
+
+## Performance Best Practices
+
+1. **Database**: Use connection pooling, implement proper indexing
+2. **Caching**: Use Redis for caching frequently accessed data
+3. **Search**: Optimize Elasticsearch queries, use proper analyzers
+4. **Frontend**: Implement code splitting, lazy loading, and memoization
+5. **API**: Implement pagination for large datasets
+6. **Queue**: Use background jobs for heavy processing
+7. **CDN**: Use CDN for static assets in production
+
+## Migration Notes
+
+### When Upgrading
+
+- **TypeORM 0.2.x → 0.3.x**: Update DataSource usage, check migration syntax
+- **LangChain 0.x → 1.x**: Major API changes, follow migration guide
+- **AWS SDK v2 → v3**: Modular imports, different API structure
+- **React Router v5 → v6**: New data APIs, different route structure
+- **Redux Toolkit v1 → v2**: Check for breaking changes in createSlice
+
+## Dependency Update Strategy
+
+1. **Security Updates**: Apply immediately
+2. **Patch Updates**: Apply monthly
+3. **Minor Updates**: Review quarterly, test thoroughly
+4. **Major Updates**: Plan migration, test extensively, check breaking changes
+
+## Monitoring & Observability
+
+- Use Grafana for metrics visualization
+- Implement structured logging
+- Monitor database query performance
+- Track API response times
+- Monitor queue processing times
+- Set up alerts for critical metrics

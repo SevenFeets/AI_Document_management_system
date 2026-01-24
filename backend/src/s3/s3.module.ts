@@ -8,3 +8,10 @@ import { S3Service } from './s3.service'
   exports: [S3Service],
 })
 export class S3Module {}
+
+/*
+  Registers the S3Service as a NestJS module
+  Imports ConfigModule to access environment variables
+  Provides S3Service for file storage and retrieval
+  Exports S3Service so other modules can use it
+*/

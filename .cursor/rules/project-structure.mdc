@@ -1,0 +1,251 @@
+---
+description: Project directory structure and important files reference
+globs: **/*
+alwaysApply: false
+---
+
+# Project Directory Structure
+
+This document outlines the complete directory structure of the AI-powered Document Search & Summarization project.
+
+## Root Directory
+
+```
+PROJECT_ROOT/
+├── .cursor/
+│   └── rules/              # Cursor IDE rules and guidelines
+├── backend/                # NestJS backend application
+├── frontend/               # React + TypeScript frontend application
+├── kubernetes/             # Kubernetes deployment configurations
+├── monitoring/             # Grafana monitoring dashboards and datasources
+├── terraform/              # Infrastructure as Code (IaC) configurations
+├── docker-compose.yml      # Docker Compose configuration for local development
+├── README.md               # Main project documentation
+├── QUICK_START.md          # Quick start guide
+├── ROADMAP.md              # Project roadmap
+├── ARCHITECTURE.md         # System architecture documentation
+├── DEPLOYMENT.md           # Deployment instructions
+├── CONTRIBUTING.md         # Contribution guidelines
+└── IMPLEMENTATION_PLAN.md  # Implementation planning document
+```
+
+## Backend Structure (`backend/`)
+
+NestJS application providing REST API and business logic.
+
+```
+backend/
+├── src/
+│   ├── main.ts                    # Application entry point
+│   ├── app.module.ts              # Root application module
+│   │
+│   ├── ai/                        # AI/ML services module
+│   │   ├── ai.module.ts
+│   │   └── ai.service.ts          # AI summarization and processing
+│   │
+│   ├── database/                  # Database module
+│   │   ├── database.module.ts
+│   │   └── entities/
+│   │       └── document.entity.ts # Document entity definition
+│   │
+│   ├── documents/                 # Document management module
+│   │   ├── documents.controller.ts
+│   │   ├── documents.module.ts
+│   │   ├── documents.service.ts
+│   │   └── services/
+│   │       └── document-parser.service.ts # Document parsing logic
+│   │
+│   ├── elasticsearch/             # Elasticsearch integration
+│   │   ├── elasticsearch.module.ts
+│   │   └── elasticsearch.service.ts # Search indexing and queries
+│   │
+│   ├── queue/                     # Background job processing
+│   │   ├── queue.module.ts
+│   │   ├── queue.service.ts
+│   │   └── processors/
+│   │       └── document.processor.ts # Document processing jobs
+│   │
+│   ├── s3/                        # AWS S3 integration
+│   │   ├── s3.module.ts
+│   │   └── s3.service.ts          # File storage operations
+│   │
+│   ├── search/                    # Search functionality
+│   │   ├── search.controller.ts
+│   │   ├── search.module.ts
+│   │   └── search.service.ts      # Search query handling
+│   │
+│   └── upload/                    # File upload handling
+│       ├── upload.controller.ts
+│       ├── upload.module.ts
+│       └── upload.service.ts
+│
+├── Dockerfile                     # Backend container image
+├── package.json                   # Backend dependencies
+├── package-lock.json              # Dependency lock file
+├── tsconfig.json                  # TypeScript configuration
+├── nest-cli.json                  # NestJS CLI configuration
+└── README.md                      # Backend-specific documentation
+```
+
+### Backend Module Organization
+
+- **Modules**: Each feature has its own module (`.module.ts`) following NestJS conventions
+- **Controllers**: Handle HTTP requests and responses
+- **Services**: Contain business logic and external service integrations
+- **Entities**: TypeORM database entity definitions
+
+## Frontend Structure (`frontend/`)
+
+React application with TypeScript, Vite, and Redux Toolkit.
+
+```
+frontend/
+├── src/
+│   ├── main.tsx                   # Application entry point
+│   ├── App.tsx                    # Root React component
+│   ├── index.css                  # Global styles
+│   │
+│   ├── components/                # Reusable React components
+│   │   └── Layout/
+│   │       └── Layout.tsx          # Main layout component
+│   │
+│   ├── pages/                     # Page components (routes)
+│   │   ├── Dashboard.tsx          # Main dashboard page
+│   │   ├── DocumentDetail.tsx     # Document detail view
+│   │   ├── DocumentSearch.tsx     # Search interface
+│   │   └── DocumentUpload.tsx     # Upload interface
+│   │
+│   ├── services/                  # API service layer
+│   │   ├── api.ts                 # Base API client configuration
+│   │   ├── documentService.ts     # Document API calls
+│   │   ├── searchService.ts       # Search API calls
+│   │   └── uploadService.ts       # Upload API calls
+│   │
+│   └── store/                     # Redux store configuration
+│       ├── store.ts               # Redux store setup
+│       └── slices/                # Redux Toolkit slices
+│           ├── documentsSlice.ts  # Document state management
+│           ├── searchSlice.ts     # Search state management
+│           └── uploadSlice.ts     # Upload state management
+│
+├── Dockerfile                     # Frontend container image
+├── index.html                     # HTML entry point
+├── nginx.conf                     # Nginx configuration for production
+├── package.json                   # Frontend dependencies
+├── postcss.config.js              # PostCSS configuration
+├── tailwind.config.js             # Tailwind CSS configuration
+├── tsconfig.json                  # TypeScript configuration
+├── tsconfig.node.json             # TypeScript config for Node.js tools
+├── vite.config.ts                 # Vite build configuration
+└── README.md                      # Frontend-specific documentation
+```
+
+### Frontend Architecture
+
+- **Pages**: Top-level route components
+- **Components**: Reusable UI components
+- **Services**: API communication layer
+- **Store**: Redux state management with Redux Toolkit
+
+## Infrastructure & DevOps
+
+### Kubernetes (`kubernetes/`)
+
+Kubernetes deployment manifests for production environments.
+
+```
+kubernetes/
+├── backend-deployment.yaml        # Backend service deployment
+├── elasticsearch-deployment.yaml  # Elasticsearch cluster deployment
+└── frontend-deployment.yaml       # Frontend service deployment
+```
+
+### Terraform (`terraform/`)
+
+Infrastructure as Code for cloud resource provisioning.
+
+```
+terraform/
+├── main.tf                        # Main Terraform configuration
+├── variables.tf                   # Variable definitions
+├── outputs.tf                     # Output values
+├── terraform.tfvars.example       # Example variable values
+└── lambda-function/               # AWS Lambda function code
+    ├── index.js                   # Lambda handler
+    └── package.json               # Lambda dependencies
+```
+
+### Monitoring (`monitoring/`)
+
+Grafana dashboards and datasource configurations.
+
+```
+monitoring/
+└── grafana/
+    ├── dashboards/
+    │   ├── dashboard.yml          # Dashboard provisioning config
+    │   └── document-search-dashboard.json # Main dashboard definition
+    └── datasources/
+        └── datasources.yml        # Datasource configuration
+```
+
+## Important Configuration Files
+
+### Root Level
+
+- `docker-compose.yml`: Local development environment setup
+- `README.md`: Main project documentation and overview
+- `QUICK_START.md`: Quick start guide for new developers
+- `ROADMAP.md`: Project roadmap and future plans
+- `ARCHITECTURE.md`: System architecture documentation
+- `DEPLOYMENT.md`: Deployment procedures and instructions
+- `CONTRIBUTING.md`: Contribution guidelines
+- `IMPLEMENTATION_PLAN.md`: Implementation planning details
+
+### Backend Configuration
+
+- `backend/package.json`: Backend dependencies and scripts
+- `backend/tsconfig.json`: TypeScript compiler configuration
+- `backend/nest-cli.json`: NestJS CLI settings
+- `backend/Dockerfile`: Backend container image definition
+
+### Frontend Configuration
+
+- `frontend/package.json`: Frontend dependencies and scripts
+- `frontend/tsconfig.json`: TypeScript configuration for frontend
+- `frontend/vite.config.ts`: Vite build tool configuration
+- `frontend/tailwind.config.js`: Tailwind CSS utility configuration
+- `frontend/nginx.conf`: Production web server configuration
+- `frontend/Dockerfile`: Frontend container image definition
+
+## Key Directories Summary
+
+| Directory | Purpose | Key Files |
+|-----------|---------|-----------|
+| `backend/src/` | NestJS application source code | Modules, controllers, services |
+| `frontend/src/` | React application source code | Components, pages, services, store |
+| `kubernetes/` | K8s deployment manifests | Deployment YAML files |
+| `terraform/` | Infrastructure provisioning | Terraform configuration files |
+| `monitoring/` | Observability setup | Grafana dashboards and configs |
+| `.cursor/rules/` | Cursor IDE rules | Project-specific guidelines |
+
+## File Naming Conventions
+
+- **Backend**: kebab-case for files (e.g., `documents.service.ts`)
+- **Frontend**: PascalCase for components (e.g., `DocumentUpload.tsx`), camelCase for utilities
+- **Config files**: lowercase with extensions (e.g., `tsconfig.json`, `docker-compose.yml`)
+- **Documentation**: UPPERCASE with underscores (e.g., `QUICK_START.md`)
+
+## Module Dependencies
+
+- **Backend**: NestJS modules follow dependency injection pattern
+- **Frontend**: Services depend on base `api.ts` client
+- **State Management**: Redux slices are independent but can share selectors
+
+## Development Workflow
+
+1. **Backend Changes**: Modify files in `backend/src/` following NestJS module structure
+2. **Frontend Changes**: Modify files in `frontend/src/` following React component structure
+3. **Infrastructure Changes**: Update Terraform files in `terraform/` directory
+4. **Deployment**: Use Kubernetes manifests in `kubernetes/` for production
+5. **Monitoring**: Update Grafana dashboards in `monitoring/grafana/`

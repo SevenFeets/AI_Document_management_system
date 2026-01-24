@@ -12,3 +12,10 @@ import { DocumentParserService } from './services/document-parser.service'
   exports: [DocumentsService],
 })
 export class DocumentsModule {}
+
+/*
+  Registers the DocumentsController and DocumentsService as NestJS modules
+  Imports TypeOrmModule to manage the DocumentEntity
+  Provides DocumentParserService for document parsing
+  Exports DocumentsService so other modules can use it
+*/

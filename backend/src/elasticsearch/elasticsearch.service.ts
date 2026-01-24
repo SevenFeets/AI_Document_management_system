@@ -84,7 +84,8 @@ export class ElasticsearchService {
       },
     })
 
-    return result.body.hits.hits.map((hit: any) => ({
+    // ".hits" property directly to comply with correct typing
+    return result.hits.hits.map((hit: any) => ({
       id: hit._source.id,
       title: hit._source.title,
       filename: hit._source.filename,

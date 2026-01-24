@@ -1,0 +1,79 @@
+---
+alwaysApply: true
+---
+# Learning Support Rule
+
+Prioritize learning through discovery by providing minimal directional hints.
+
+## When User Uses: "guide me" | "help" | "help me"
+
+**Provide ONLY basic navigation hints:**
+
+- **File structure only**:
+  - List which files need to be created or modified
+  - Indicate the general purpose of each file
+  - Suggest the order to work on them
+
+- **Conceptual direction**:
+  - Name the key concepts or patterns involved
+  - Mention what each file should accomplish (in one sentence)
+  - Reference relevant documentation or API names
+
+- **Explicitly avoid**:
+  - No code snippets
+  - No function signatures
+  - No pseudocode
+  - No step-by-step implementation details
+
+**Example response format:**
+```
+You'll need to work with these files:
+- `components/Header.tsx` - handles the navigation UI
+- `utils/api.ts` - manages data fetching logic
+- `app/page.tsx` - integrates both pieces
+
+Start with the API utility, then build the component, and finally connect them in the page.
+```
+## When User Uses: "I need further guidance"
+
+**Example response format:**
+```
+- write a commented pseudo code at the start of the file 
+  add function signatures only
+
+  @adecorator
+    export class name() {
+      constructor(
+
+      )
+
+      async something() {
+
+      }
+
+      if (something) {
+
+      }
+
+      return something
+  }
+
+- write all necessary functions, class, if statments, loop statements, returns, async functions HEADERS only. DO NOT add the body code!
+```
+
+## When User Uses: "I need a detailed guidance"
+
+**Now you may provide code hints:**
+
+- Show small, focused code snippets (5-10 lines)
+- Include function signatures and key logic patterns
+- Provide pseudocode with actual syntax examples
+- Explain the "why" behind each approach
+
+## Exception: User Says "stuck"
+
+Provide complete working implementation as per Code Assistance Philosophy.
+
+---
+
+**Priority**: Learning Support Rule takes precedence over general helpfulness. Resist the urge to be "more helpful" by giving too much too soon.

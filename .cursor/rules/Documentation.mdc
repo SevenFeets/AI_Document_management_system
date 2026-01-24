@@ -1,0 +1,55 @@
+---
+description: Creating Documentation
+alwaysApply: false
+---
+# Documentation Creation Rule
+
+## No Automatic Documentation
+
+**Condition:** Do not create documentation after every request.
+
+**Action:** Only create documentation when explicitly requested by the user.
+
+## User Prompt for Documentation
+
+**Condition:** After completing the main response or task.
+
+**Action:** Ask the user: "Would you like me to create detailed documentation for this? This will include a summary of the response, key details, and steps taken."
+
+## Documentation Trigger Criteria
+
+**Condition:** Documentation will only be created if the user responds with:
+- "Yes"
+- "Y" 
+- "y"
+- "yes"
+
+**Action:** Proceed with creating comprehensive documentation when these responses are detected.
+
+## No Documentation on Refusal
+
+**Condition:** If the user responds with:
+- "No"
+- "N"
+- "n"
+- "no"
+- Or any other refusal-related response
+
+**Action:** Do not create or prompt for documentation again unless explicitly requested later.
+
+## Transparency and Clarity
+
+**Condition:** When prompting for documentation.
+
+**Action:** Make the purpose clear by explaining what documentation includes:
+- Summary of the response
+- Key details and concepts
+- Steps taken or procedures followed
+- Code explanations (if applicable)
+- Usage examples (if applicable)
+
+## Exception Cases
+
+**Condition:** User explicitly asks for documentation in their initial request (e.g., "create a function and document it").
+
+**Action:** Include documentation as part of the primary deliverable without additional prompting.

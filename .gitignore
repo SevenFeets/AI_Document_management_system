@@ -36,3 +36,5 @@ terraform/.terraform.lock.hcl
 # Testing
 coverage/
 .nyc_output/
+
+internalDocs/
