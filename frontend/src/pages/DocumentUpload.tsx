@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useDropzone } from 'react-dropzone'
 import { uploadDocument } from '../store/slices/uploadSlice'
 import { RootState } from '../store/store'
-import { Upload, FileText, X } from 'lucide-react'
+import { Upload, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function DocumentUpload() {

@@ -18,11 +18,47 @@ export class ElasticsearchService {
       await this.elasticsearchService.indices.create({
         index: this.indexName,
         body: {
+          settings: {
+            analysis: {
+              analyzer: {
+                autocomplete_analyzer: {
+                  type: 'custom',
+                  tokenizer: 'autocomplete_tokenizer',
+                  filter: ['lowercase', 'uppercase'],
+                },
+              },
+              tokenizer: {
+                autocomplete_tokenizer: {
+                  type: 'edge_ngram',
+                  min_gram: 2,
+                  max_gram: 10,
+                  token_chars: ['letter', 'digit'],
+                },
+              },
+            },
+          },
           mappings: {
             properties: {
               id: { type: 'keyword' },
-              title: { type: 'text', analyzer: 'standard' },
-              filename: { type: 'text' },
+              title: {
+                type: 'text',
+                analyzer: 'standard',
+                fields: {
+                  autocomplete: {
+                    type: 'text',
+                    analyzer: 'autocomplete_analyzer',
+                  },
+                },
+              },
+              filename: {
+                type: 'text',
+                fields: {
+                  autocomplete: {
+                    type: 'text',
+                    analyzer: 'autocomplete_analyzer',
+                  },
+                },
+              },
               content: { type: 'text', analyzer: 'standard' },
               summary: { type: 'text' },
               fileType: { type: 'keyword' },
@@ -43,21 +79,32 @@ export class ElasticsearchService {
     fileType: string
     uploadDate: Date
   }) {
-    await this.createIndexIfNotExists()
+    try {
+      await this.createIndexIfNotExists()
 
-    return await this.elasticsearchService.index({
-      index: this.indexName,
-      id: document.id,
-      body: {
+      console.log(`Indexing document in Elasticsearch: ${document.id} (${document.filename})`)
+
+      const result = await this.elasticsearchService.index({
+        index: this.indexName,
         id: document.id,
-        title: document.title,
-        filename: document.filename,
-        content: document.content,
-        summary: document.summary,
-        fileType: document.fileType,
-        uploadDate: document.uploadDate,
-      },
-    })
+        body: {
+          id: document.id,
+          title: document.title,
+          filename: document.filename,
+          content: document.content,
+          summary: document.summary,
+          fileType: document.fileType,
+          uploadDate: document.uploadDate,
+        },
+      })
+
+      console.log(`Successfully indexed document: ${document.id}`)
+      return result
+    } catch (error) {
+      console.error(`Failed to index document ${document.id}:`, error.message)
+      console.error('Full error:', error)
+      throw new Error(`Elasticsearch indexing failed: ${error.message}`)
+    }
   }
 
   async search(query: string, size: number = 20) {
@@ -67,13 +114,27 @@ export class ElasticsearchService {
         query: {
           multi_match: {
             query,
-            fields: ['title^2', 'content', 'summary'],
+            fields: [
+              'title^3',              // Exact title match gets highest boost
+              'title.autocomplete^2', // Partial title match
+              'filename.autocomplete^2', // Partial filename match
+              'content',              // Content search
+              'summary',              // Summary search
+            ],
             type: 'best_fields',
             fuzziness: 'AUTO',
           },
         },
         highlight: {
           fields: {
+            title: {
+              fragment_size: 150,
+              number_of_fragments: 1,
+            },
+            filename: {
+              fragment_size: 150,
+              number_of_fragments: 1,
+            },
             content: {
               fragment_size: 150,
               number_of_fragments: 3,
@@ -90,6 +151,8 @@ export class ElasticsearchService {
       title: hit._source.title,
       filename: hit._source.filename,
       snippet:
+        hit.highlight?.title?.[0] ||
+        hit.highlight?.filename?.[0] ||
         hit.highlight?.content?.[0] ||
         hit._source.content?.substring(0, 200) ||
         '',

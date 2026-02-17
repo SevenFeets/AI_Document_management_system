@@ -24,6 +24,7 @@
     "@aws-sdk/client-s3": "^3.974.0",
     "@aws-sdk/s3-request-presigner": "^3.974.0",
     "@langchain/community": "^1.1.4",
+    "@langchain/groq": "^1.0.3",
     "@langchain/openai": "^1.2.2",
     "@nestjs/bull": "^10.0.1",
     "@nestjs/common": "^10.2.10",

@@ -37,13 +37,7 @@ export class DocumentProcessor {
         throw new Error(`Document ${documentId} not found`)
       }
 
-      // Download file from S3
-      job.progress(20)
-      const fileUrl = await this.s3Service.getFileUrl(s3Key)
-      // In production, you'd download the actual file content here
-      // For now, we'll simulate this
-
-      // Parse document content
+      // Parse document content (downloads from S3 and extracts text)
       job.progress(40)
       const extractedText = await this.documentParserService.parseDocument(
         s3Key,
@@ -63,15 +57,25 @@ export class DocumentProcessor {
 
       // Index in Elasticsearch
       job.progress(80)
-      await this.elasticsearchService.indexDocument({
-        id: document.id,
-        title: document.title,
-        filename: document.filename,
-        content: extractedText,
-        summary: summary,
-        fileType: document.fileType,
-        uploadDate: document.uploadDate,
-      })
+      try {
+        console.log(`Indexing document in Elasticsearch: ${documentId}`)
+        
+        await this.elasticsearchService.indexDocument({
+          id: document.id,
+          title: document.title,
+          filename: document.filename,
+          content: extractedText,
+          summary: summary,
+          fileType: document.fileType,
+          uploadDate: document.uploadDate,
+        })
+
+        console.log(`Successfully indexed document in Elasticsearch: ${documentId}`)
+      } catch (esError) {
+        console.error(`Failed to index in Elasticsearch: ${esError.message}`, esError)
+        // Document is still marked as indexed in DB but may not be searchable
+        throw esError
+      }
 
       job.progress(100)
       return { success: true, documentId }

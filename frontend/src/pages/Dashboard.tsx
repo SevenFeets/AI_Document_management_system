@@ -28,6 +28,14 @@ export default function Dashboard() {
     )
   }
 
+  // auto refresh the page every 60 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      window.location.reload()
+    }, 60000)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <div className="px-4 py-6">
       <div className="mb-8">

@@ -38,7 +38,7 @@ export default function DocumentSearch() {
 
     setSummarizing(documentId)
     try {
-      const summary = await dispatch(
+      await dispatch(
         summarizeDocument({ documentId, query }) as any
       ).unwrap()
       toast.success('Summary generated!', { duration: 5000 })

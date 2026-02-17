@@ -64,53 +64,9 @@ services:
       timeout: 10s
       retries: 5
 
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: document-search-backend
-    environment:
-      - NODE_ENV=development
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=document_search
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - ELASTICSEARCH_NODE=http://elasticsearch:9200
-      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
-    ports:
-      - "4000:4000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      elasticsearch:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-    command: npm run start:dev
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: document-search-frontend
-    environment:
-      - VITE_API_BASE_URL=http://localhost:4000/api
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    command: npm run dev
+  # Backend and Frontend run locally for development
+  # Use: cd backend && npm run start:dev
+  # Use: cd frontend && npm run dev
 
   grafana:
     image: grafana/grafana:latest

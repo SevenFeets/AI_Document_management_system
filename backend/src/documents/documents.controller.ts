@@ -47,4 +47,15 @@ export class DocumentsController {
   async deleteDocument(@Param('id') id: string) {
     return await this.documentsService.delete(id)
   }
+
+  @Post('reindex')
+  async reindexDocuments() {
+    return await this.documentsService.reindexAllDocuments()
+  }
+
+  @Post(':id/reindex')
+  async reindexDocument(@Param('id') id: string) {
+    return await this.documentsService.reindexDocument(id)
+  }
+
 }

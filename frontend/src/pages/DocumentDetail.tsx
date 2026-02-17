@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { fetchDocumentById } from '../store/slices/documentsSlice'
 import { summarizeDocument, setQuery } from '../store/slices/searchSlice'
 import { RootState } from '../store/store'
-import { ArrowLeft, FileText, Calendar, Sparkles, Loader } from 'lucide-react'
+import { ArrowLeft, FileText, Sparkles, Loader } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function DocumentDetail() {
@@ -64,6 +64,11 @@ export default function DocumentDetail() {
       </div>
     )
   }
+
+  // Poll for status updates
+  useEffect(() => {
+    
+  })
 
   return (
     <div className="px-4 py-6">

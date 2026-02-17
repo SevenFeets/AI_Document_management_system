@@ -1,62 +1,150 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ChatOpenAI } from '@langchain/openai'
+import { ChatGroq } from '@langchain/groq'
+// import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
+// import { ChatOllama } from '@langchain/ollama'
 import { PromptTemplate } from '@langchain/core/prompts'
 import { StringOutputParser } from '@langchain/core/output_parsers'
 import { RunnableSequence } from '@langchain/core/runnables'
+import { BaseChatModel } from '@langchain/core/language_models/chat_models'
 
 @Injectable()
 export class AIService {
-  private llm: ChatOpenAI
+  private llm: BaseChatModel
   private summarizationChain: RunnableSequence
   private useMockSummary: boolean
+  private provider: string
 
   constructor(private configService: ConfigService) {
-    const apiKey = this.configService.get('OPENAI_API_KEY', '')
+    this.provider = this.configService.get('AI_PROVIDER', 'groq').toLowerCase()
     
-    // Use mock summary if API key is not configured or is a test value
-    this.useMockSummary = !apiKey || 
-                          apiKey === 'test-key' || 
-                          apiKey === 'sk-your-key-here' ||
-                          apiKey.startsWith('test')
+    // Initialize based on provider
+    this.useMockSummary = false
     
-    if (this.useMockSummary) {
-      console.log('Using mock AI summaries (OpenAI API key not configured)')
-    } else {
-      console.log('Using OpenAI for AI summaries')
-      
-      this.llm = new ChatOpenAI({
-        openAIApiKey: apiKey,
-        modelName: this.configService.get('OPENAI_MODEL', 'gpt-3.5-turbo'),
-        temperature: 0.7,
-      })
-
-      const summarizationPrompt = PromptTemplate.fromTemplate(`
-        You are an expert document summarizer. Based on the following document content and user query, provide a comprehensive summary.
+    try {
+      switch (this.provider) {
+        case 'groq':
+          this.initializeGroq()
+          break
         
-        User Query: {query}
+        // case 'openai':
+        //   this.initializeOpenAI()
+        //   break
         
-        Document Content:
-        {content}
+        // case 'gemini':
+        //   this.initializeGemini()
+        //   break
         
-        Please provide a detailed summary that addresses the user's query. Focus on the most relevant information.
+        // case 'ollama':
+        //   this.initializeOllama()
+        //   break
         
-        Summary:
-      `)
-
-      this.summarizationChain = RunnableSequence.from([
-        summarizationPrompt,
-        this.llm,
-        new StringOutputParser(),
-      ])
+        default:
+          console.log(`Unknown AI provider: ${this.provider}, using mock summaries`)
+          this.useMockSummary = true
+      }
+    } catch (error) {
+      console.error(`Failed to initialize ${this.provider}:`, error.message)
+      console.log('Falling back to mock AI summaries')
+      this.useMockSummary = true
     }
+  }
+
+  private initializeGroq() {
+    const apiKey = this.configService.get('GROQ_API_KEY', '')
+    
+    if (!apiKey || apiKey === 'your-groq-api-key-here') {
+      throw new Error('GROQ_API_KEY not configured')
+    }
+    
+    console.log('Using Groq for AI summaries')
+    
+    this.llm = new ChatGroq({
+      apiKey: apiKey,
+      model: this.configService.get('GROQ_MODEL', 'llama-3.3-70b-versatile'),
+      temperature: 0.7,
+    })
+
+    this.initializeSummarizationChain()
+  }
+
+  // private initializeOpenAI() {
+  //   const apiKey = this.configService.get('OPENAI_API_KEY', '')
+  //   
+  //   if (!apiKey || apiKey === 'sk-your-key-here') {
+  //     throw new Error('OPENAI_API_KEY not configured')
+  //   }
+  //   
+  //   console.log('Using OpenAI for AI summaries')
+  //   
+  //   this.llm = new ChatOpenAI({
+  //     openAIApiKey: apiKey,
+  //     modelName: this.configService.get('OPENAI_MODEL', 'gpt-3.5-turbo'),
+  //     temperature: 0.7,
+  //   })
+  //
+  //   this.initializeSummarizationChain()
+  // }
+
+  // private initializeGemini() {
+  //   const apiKey = this.configService.get('GOOGLE_API_KEY', '')
+  //   
+  //   if (!apiKey || apiKey === 'your-google-api-key-here') {
+  //     throw new Error('GOOGLE_API_KEY not configured')
+  //   }
+  //   
+  //   console.log('Using Google Gemini for AI summaries')
+  //   
+  //   this.llm = new ChatGoogleGenerativeAI({
+  //     apiKey: apiKey,
+  //     modelName: this.configService.get('GEMINI_MODEL', 'gemini-1.5-flash'),
+  //     temperature: 0.7,
+  //   })
+  //
+  //   this.initializeSummarizationChain()
+  // }
+
+  // private initializeOllama() {
+  //   const baseUrl = this.configService.get('OLLAMA_BASE_URL', 'http://localhost:11434')
+  //   
+  //   console.log('Using Ollama for AI summaries')
+  //   
+  //   this.llm = new ChatOllama({
+  //     baseUrl: baseUrl,
+  //     model: this.configService.get('OLLAMA_MODEL', 'llama3.2'),
+  //     temperature: 0.7,
+  //   })
+  //
+  //   this.initializeSummarizationChain()
+  // }
+
+  private initializeSummarizationChain() {
+    const summarizationPrompt = PromptTemplate.fromTemplate(`
+      You are an expert document summarizer. Based on the following document content and user query, provide a comprehensive summary.
+      
+      User Query: {query}
+      
+      Document Content:
+      {content}
+      
+      Please provide a detailed summary that addresses the user's query. Focus on the most relevant information.
+      
+      Summary:
+    `)
+
+    this.summarizationChain = RunnableSequence.from([
+      summarizationPrompt,
+      this.llm,
+      new StringOutputParser(),
+    ])
   }
 
   async summarizeDocument(content: string, query: string): Promise<string> {
     // Return mock summary if using mock mode
     if (this.useMockSummary) {
       const wordCount = content.split(/\s+/).length
-      return `[Mock Query Summary] Query: "${query}" - This document contains approximately ${wordCount} words. (AI summarization is disabled - configure OPENAI_API_KEY to enable real summaries)`
+      return `[Mock Query Summary] Query: "${query}" - This document contains approximately ${wordCount} words. (AI summarization is disabled - configure AI_PROVIDER and API key to enable real summaries)`
     }
 
     try {
@@ -84,7 +172,7 @@ export class AIService {
     if (this.useMockSummary) {
       const wordCount = content.split(/\s+/).length
       const preview = content.substring(0, 200).trim()
-      return `[Mock Summary] This document contains approximately ${wordCount} words. Preview: "${preview}${content.length > 200 ? '...' : ''}" (AI summarization is disabled - configure OPENAI_API_KEY to enable real summaries)`
+      return `[Mock Summary] This document contains approximately ${wordCount} words. Preview: "${preview}${content.length > 200 ? '...' : ''}" (AI summarization is disabled - configure AI_PROVIDER and API key to enable real summaries)`
     }
 
     try {

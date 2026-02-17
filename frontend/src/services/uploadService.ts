@@ -11,8 +11,8 @@ export const uploadService = {
       },
       onUploadProgress: (progressEvent) => {
         if (progressEvent.total) {
-          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          // Progress will be handled by the slice
+          // Progress calculation - handled by Redux slice
+          Math.round((progressEvent.loaded * 100) / progressEvent.total)
         }
       },
     })
