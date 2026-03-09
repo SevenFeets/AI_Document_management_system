@@ -24,7 +24,7 @@ export class ElasticsearchService {
                 autocomplete_analyzer: {
                   type: 'custom',
                   tokenizer: 'autocomplete_tokenizer',
-                  filter: ['lowercase', 'uppercase'],
+                  filter: ['lowercase'],
                 },
               },
               tokenizer: {

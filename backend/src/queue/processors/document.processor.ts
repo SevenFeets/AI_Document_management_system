@@ -52,30 +52,27 @@ export class DocumentProcessor {
       job.progress(60)
       const summary = await this.aiService.generateSummary(extractedText)
       document.summary = summary
-      document.status = DocumentStatus.INDEXED
       await this.documentRepository.save(document)
 
       // Index in Elasticsearch
       job.progress(80)
-      try {
-        console.log(`Indexing document in Elasticsearch: ${documentId}`)
-        
-        await this.elasticsearchService.indexDocument({
-          id: document.id,
-          title: document.title,
-          filename: document.filename,
-          content: extractedText,
-          summary: summary,
-          fileType: document.fileType,
-          uploadDate: document.uploadDate,
-        })
+      console.log(`Indexing document in Elasticsearch: ${documentId}`)
+      
+      await this.elasticsearchService.indexDocument({
+        id: document.id,
+        title: document.title,
+        filename: document.filename,
+        content: extractedText,
+        summary: summary,
+        fileType: document.fileType,
+        uploadDate: document.uploadDate,
+      })
 
-        console.log(`Successfully indexed document in Elasticsearch: ${documentId}`)
-      } catch (esError) {
-        console.error(`Failed to index in Elasticsearch: ${esError.message}`, esError)
-        // Document is still marked as indexed in DB but may not be searchable
-        throw esError
-      }
+      console.log(`Successfully indexed document in Elasticsearch: ${documentId}`)
+
+      // Only mark as INDEXED after successful Elasticsearch indexing
+      document.status = DocumentStatus.INDEXED
+      await this.documentRepository.save(document)
 
       job.progress(100)
       return { success: true, documentId }

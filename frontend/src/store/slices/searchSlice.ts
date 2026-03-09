@@ -16,6 +16,8 @@ interface SearchState {
   loading: boolean
   error: string | null
   hasSearched: boolean
+  /** Summary text keyed by document id (from "AI Summarize" on search results) */
+  documentSummaries: Record<string, string>
 }
 
 const initialState: SearchState = {
@@ -24,6 +26,7 @@ const initialState: SearchState = {
   loading: false,
   error: null,
   hasSearched: false,
+  documentSummaries: {},
 }
 
 export const searchDocuments = createAsyncThunk(
@@ -69,6 +72,10 @@ const searchSlice = createSlice({
       .addCase(searchDocuments.rejected, (state, action) => {
         state.loading = false
         state.error = action.error.message || 'Search failed'
+      })
+      .addCase(summarizeDocument.fulfilled, (state, action) => {
+        const { documentId } = action.meta.arg
+        state.documentSummaries[documentId] = action.payload
       })
   },
 })

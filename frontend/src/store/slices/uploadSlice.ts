@@ -15,11 +15,15 @@ const initialState: UploadState = {
   uploadedFiles: [],
 }
 
+// Define thunk before slice using action type string to avoid circular reference
 export const uploadDocument = createAsyncThunk(
   'upload/uploadDocument',
-  async (file: File, { rejectWithValue }) => {
+  async (file: File, { dispatch, rejectWithValue }) => {
     try {
-      return await uploadService.uploadFile(file)
+      return await uploadService.uploadFile(file, (percent) => {
+        // Dispatch using action type string to avoid circular reference
+        dispatch({ type: 'upload/setProgress', payload: percent })
+      })
     } catch (error: any) {
       return rejectWithValue(error.message || 'Upload failed')
     }

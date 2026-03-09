@@ -8,7 +8,7 @@ import toast from 'react-hot-toast'
 
 export default function DocumentSearch() {
   const dispatch = useDispatch()
-  const { query, results, loading, hasSearched } = useSelector(
+  const { query, results, loading, hasSearched, documentSummaries } = useSelector(
     (state: RootState) => state.search
   )
   const [searchInput, setSearchInput] = useState(query)
@@ -113,6 +113,14 @@ export default function DocumentSearch() {
                       </Link>
                       <p className="text-sm text-gray-500 mb-2">{result.filename}</p>
                       <p className="text-gray-700 mb-3">{result.snippet}</p>
+                      {documentSummaries[result.id] && (
+                        <div className="mb-3 p-3 bg-primary-50 border border-primary-200 rounded-lg">
+                          <p className="text-xs font-semibold text-primary-700 mb-1">AI Summary</p>
+                          <p className="text-gray-700 text-sm whitespace-pre-wrap">
+                            {documentSummaries[result.id]}
+                          </p>
+                        </div>
+                      )}
                       <div className="flex items-center gap-4 text-xs text-gray-500">
                         <span>Relevance: {(result.score * 100).toFixed(1)}%</span>
                       </div>
