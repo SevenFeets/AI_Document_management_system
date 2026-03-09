@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchDocumentById } from '../store/slices/documentsSlice'
+import { fetchDocumentById, refreshDocumentByIdSilently } from '../store/slices/documentsSlice'
 import { summarizeDocument, setQuery } from '../store/slices/searchSlice'
 import { RootState } from '../store/store'
 import { ArrowLeft, FileText, Sparkles, Loader } from 'lucide-react'
 import toast from 'react-hot-toast'
+
 
 export default function DocumentDetail() {
   const { id } = useParams<{ id: string }>()
@@ -65,10 +66,15 @@ export default function DocumentDetail() {
     )
   }
 
-  // Poll for status updates
+  // Poll for status updates only when document is processing (using silent refresh)
   useEffect(() => {
-    
-  })
+    if (selectedDocument?.status === 'processing' && id) {
+      const interval = setInterval(() => {
+        dispatch(refreshDocumentByIdSilently(id) as any)
+      }, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [id, dispatch, selectedDocument?.status])
 
   return (
     <div className="px-4 py-6">

@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { fetchDocuments } from '../store/slices/documentsSlice'
+import { fetchDocuments, refreshDocumentsSilently } from '../store/slices/documentsSlice'
 import { RootState } from '../store/store'
 import { FileText, Clock, CheckCircle, XCircle } from 'lucide-react'
 
@@ -28,13 +28,15 @@ export default function Dashboard() {
     )
   }
 
-  // auto refresh the page every 60 seconds
+  // Only poll when there are documents being processed (using silent refresh)
   useEffect(() => {
-    const interval = setInterval(() => {
-      window.location.reload()
-    }, 60000)
-    return () => clearInterval(interval)
-  }, [])
+    if (stats.processing > 0) {
+      const interval = setInterval(() => {
+        dispatch(refreshDocumentsSilently() as any)
+      }, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [dispatch, stats.processing])
 
   return (
     <div className="px-4 py-6">
