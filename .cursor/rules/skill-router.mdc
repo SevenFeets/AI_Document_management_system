@@ -1,0 +1,37 @@
+---
+description: Routes tasks to the correct project skill and memory-bank context before acting
+alwaysApply: true
+---
+
+# Skill Router
+
+Before implementing or advising, read the matching skill(s) from `.cursor/skills/` and apply their patterns.
+
+## Routing Table
+
+| Task or context | Skill to read |
+|-----------------|---------------|
+| Login, JWT, guards, RBAC, protected routes | `auth-patterns` |
+| Git commits, PRs, CI/CD, Terraform, K8s, Docker deploy | `git-deploy` |
+| NestJS modules, controllers, services, queues, S3, AI | `backend-patterns` |
+| React pages, Redux, services, routing, Tailwind UI | `frontend-patterns` |
+| TypeORM entities, PostgreSQL, migrations, Elasticsearch sync | `database-patterns` |
+
+## File-Path Hints
+
+- `backend/**` → `backend-patterns` (+ `database-patterns` if touching entities/repos)
+- `frontend/**` → `frontend-patterns`
+- `kubernetes/**`, `terraform/**`, `.github/**`, `docker-compose.yml` → `git-deploy`
+- `backend/src/database/**`, `backend/src/elasticsearch/**` → `database-patterns`
+- `backend/src/auth/**` (future) → `auth-patterns`
+
+## Session Context
+
+At the start of each session, read `memory-bank/activeContext.md` for current focus and next steps. Consult other memory-bank files when you need product, architecture, or tech details.
+
+## Rules
+
+1. **Read before write** — load the skill(s) that match the task; do not improvise project conventions.
+2. **Multiple skills** — cross-cutting work (e.g. auth + backend) may require more than one skill.
+3. **No match** — if no skill applies, follow `.cursor/rules/` and existing code patterns in the repo.
+4. **Learning mode** — follow the escalation ladder in `learning.mdc`; full code only when the user says "stuck".
