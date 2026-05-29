@@ -1,0 +1,71 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "LambdaDeploy",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:CreateFunction",
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration",
+        "lambda:GetFunction",
+        "lambda:DeleteFunction",
+        "lambda:AddPermission",
+        "lambda:RemovePermission",
+        "lambda:GetPolicy",
+        "lambda:ListVersionsByFunction",
+        "lambda:ListFunctions",
+        "lambda:InvokeFunction",
+        "lambda:TagResource",
+        "lambda:ListTags"
+      ],
+      "Resource": "arn:aws:lambda:il-central-1:755687317966:function:ai-pdss-document-processor"
+    },
+    {
+      "Sid": "LambdaDeployRole",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole",
+        "iam:GetRole",
+        "iam:DeleteRole",
+        "iam:PassRole",
+        "iam:PutRolePolicy",
+        "iam:GetRolePolicy",
+        "iam:DeleteRolePolicy",
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy",
+        "iam:ListRolePolicies",
+        "iam:ListAttachedRolePolicies",
+        "iam:TagRole"
+      ],
+      "Resource": "arn:aws:iam::755687317966:role/ai-pdss-document-processor-role"
+    },
+    {
+      "Sid": "CloudWatchLogsManage",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:DeleteLogGroup",
+        "logs:PutRetentionPolicy",
+        "logs:TagLogGroup",
+        "logs:UntagLogGroup",
+        "logs:ListTagsForResource",
+        "logs:TagResource",
+        "logs:UntagResource"
+      ],
+      "Resource": "arn:aws:logs:il-central-1:755687317966:log-group:/aws/lambda/ai-pdss-document-processor*"
+    },
+    {
+      "Sid": "CloudWatchLogsDescribe",
+      "Effect": "Allow",
+      "Action": "logs:DescribeLogGroups",
+      "Resource": "*"
+    },
+    {
+      "Sid": "StsRead",
+      "Effect": "Allow",
+      "Action": "sts:GetCallerIdentity",
+      "Resource": "*"
+    }
+  ]
+}
