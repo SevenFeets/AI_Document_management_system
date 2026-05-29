@@ -29,6 +29,10 @@ terraform/.terraform/
 terraform/*.tfstate
 terraform/*.tfstate.backup
 terraform/.terraform.lock.hcl
+terraform/lambda-deploy/.terraform/
+terraform/lambda-deploy/*.tfstate*
+terraform/lambda-deploy/lambda_function.zip
+terraform/lambda-function/node_modules/
 
 # Docker
 *.dockerignore

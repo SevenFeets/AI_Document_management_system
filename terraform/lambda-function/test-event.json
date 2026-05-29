@@ -1,0 +1,18 @@
+{
+  "Records": [
+    {
+      "eventVersion": "2.1",
+      "eventSource": "aws:s3",
+      "awsRegion": "il-central-1",
+      "eventName": "ObjectCreated:Put",
+      "s3": {
+        "bucket": {
+          "name": "ai-pdss"
+        },
+        "object": {
+          "key": "documents/1769777612611-requirements.txt"
+        }
+      }
+    }
+  ]
+}

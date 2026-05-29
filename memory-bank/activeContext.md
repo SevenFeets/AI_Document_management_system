@@ -6,8 +6,8 @@
 ## Current Focus
 
 - **Session date:** 2026-05-23
-- **Area of interest:** Kubernetes deployment (`kubernetes/frontend-deployment.yaml` was recently viewed)
-- **Status:** Memory bank initialized; project codebase is largely scaffolded with core modules in place
+- **Area of interest:** AWS S3 integration (Phase 4.1–4.2 complete)
+- **Status:** Real S3 in use — bucket `ai-pdss` (`il-central-1`), IAM user `yaroslav@Dev`
 
 ## Recent Changes
 
@@ -37,7 +37,7 @@
 
 ## Active Decisions
 
-- **Storage:** Start with mocked/local S3, add real AWS S3 later (per ROADMAP recommendation)
+- **Storage:** Real AWS S3 (`ai-pdss`, `il-central-1`); local `uploads/` fallback when AWS env vars unset
 - **AI:** Core features first, then AI summarization (LangChain + OpenAI)
 - **Deployment:** Local testing before AWS/Kubernetes production deploy
 

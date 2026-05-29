@@ -271,27 +271,29 @@ curl "http://localhost:4000/api/search?q=test"
 ### 4.1 Set Up AWS Account
 **Priority: HIGH**
 
-- [ ] Create AWS account
-- [ ] Set up IAM user with programmatic access
-- [ ] Create S3 bucket for documents
-- [ ] Configure bucket permissions
-- [ ] Set up CORS if needed
+- [DONE] Create AWS account
+- [DONE] Set up IAM user with programmatic access (`yaroslav@Dev`, `DocumentSearchS3Access`)
+- [DONE] Create S3 bucket for documents (`ai-pdss`, `il-central-1`)
+- [DONE] Configure bucket permissions (block public access, SSE-S3; no bucket policy)
+- [DONE] Set up CORS if needed (skipped — uploads via backend API)
 
 ### 4.2 Configure AWS Credentials
 **Priority: HIGH**
 
-- [ ] Add AWS credentials to backend `.env`
-- [ ] Test S3 upload from backend
-- [ ] Test S3 download
-- [ ] Verify file access
+- [DONE] Add AWS credentials to backend `.env`
+- [DONE] Test S3 upload from backend
+- [DONE] Test S3 download
+- [DONE] Verify file access
 
 ### 4.3 Set Up AWS Lambda (Optional)
 **Priority: LOW**
 
-- [ ] Create Lambda function
-- [ ] Package dependencies
-- [ ] Configure S3 trigger
-- [ ] Test Lambda execution
+Code and deploy tooling live in `terraform/lambda-function/` and `terraform/lambda-deploy/`.
+
+- [DONE] Create Lambda function — `cd terraform/lambda-deploy && terraform apply` (after `npm run build` in `lambda-function/`)
+- [DONE] Package dependencies — `cd terraform/lambda-function && npm run build` → `lambda-deploy/lambda_function.zip`
+- [] Configure S3 trigger — set `enable_s3_trigger = true` in `terraform.tfvars` (default **false**; Bull still processes uploads), Optional — still off (fine; Bull handles app uploads)
+- [DONE] Test Lambda execution — `aws lambda invoke` with `test-event.json` (see `terraform/lambda-function/README.md`)
 
 ### 4.4 Update Backend for Production
 **Priority: MEDIUM**

@@ -1,67 +1,115 @@
-// AWS Lambda function for document processing
-// This is a placeholder - in production, you'd implement full document parsing
+/**
+ * S3-triggered document processor (Phase 4.3).
+ * Downloads objects under documents/, extracts text, logs result.
+ *
+ * Full indexing (Postgres, Elasticsearch, OpenAI) stays in the NestJS Bull
+ * processor. Enable S3 trigger only when you want this path; see README.md.
+ */
 
-const AWS = require('aws-sdk');
-const s3 = new AWS.S3();
+const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3')
+const pdfParse = require('pdf-parse')
+const mammoth = require('mammoth')
+
+const s3 = new S3Client({})
+const PREFIX = process.env.S3_PREFIX || 'documents/'
+
+function getExtension(key) {
+  const base = key.split('/').pop() || key
+  const i = base.lastIndexOf('.')
+  return i >= 0 ? base.slice(i + 1).toLowerCase() : ''
+}
+
+async function streamToBuffer(body) {
+  const chunks = []
+  for await (const chunk of body) {
+    chunks.push(Buffer.from(chunk))
+  }
+  return Buffer.concat(chunks)
+}
+
+async function extractText(buffer, ext) {
+  switch (ext) {
+    case 'txt':
+      return buffer.toString('utf-8')
+    case 'pdf': {
+      const data = await pdfParse(buffer)
+      return data.text || ''
+    }
+    case 'docx':
+    case 'doc': {
+      const result = await mammoth.extractRawText({ buffer })
+      return result.value || ''
+    }
+    default:
+      throw new Error(`Unsupported file type: ${ext || '(none)'}`)
+  }
+}
+
+async function processRecord(record) {
+  const bucket = record.s3.bucket.name
+  const key = decodeURIComponent(record.s3.object.key.replace(/\+/g, ' '))
+
+  if (!key.startsWith(PREFIX)) {
+    console.log(`Skipping key outside prefix "${PREFIX}": ${key}`)
+    return { skipped: true, key }
+  }
+
+  console.log(`Processing s3://${bucket}/${key}`)
+
+  const response = await s3.send(
+    new GetObjectCommand({ Bucket: bucket, Key: key }),
+  )
+  if (!response.Body) {
+    throw new Error(`Empty body for ${key}`)
+  }
+
+  const buffer = await streamToBuffer(response.Body)
+  const ext = getExtension(key)
+  const extractedText = await extractText(buffer, ext)
+
+  const result = {
+    bucket,
+    key,
+    extension: ext,
+    extractedLength: extractedText.length,
+    preview: extractedText.slice(0, 200),
+  }
+  console.log('Extracted:', JSON.stringify(result))
+
+  return { skipped: false, ...result }
+}
 
 exports.handler = async (event) => {
-  console.log('Document processing event:', JSON.stringify(event, null, 2));
+  console.log('Event:', JSON.stringify(event))
 
-  try {
-    // Extract S3 event details
-    const bucket = event.Records[0].s3.bucket.name;
-    const key = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, ' '));
-
-    console.log(`Processing document: ${key} from bucket: ${bucket}`);
-
-    // Download file from S3
-    const s3Object = await s3.getObject({ Bucket: bucket, Key: key }).promise();
-    const fileContent = s3Object.Body;
-
-    // Process document based on file type
-    // In production, implement actual parsing logic here
-    const fileType = key.split('.').pop().toLowerCase();
-    
-    let extractedText = '';
-    switch (fileType) {
-      case 'pdf':
-        // Use pdf-parse library
-        extractedText = 'PDF content extracted (placeholder)';
-        break;
-      case 'docx':
-      case 'doc':
-        // Use mammoth library
-        extractedText = 'Word document content extracted (placeholder)';
-        break;
-      case 'txt':
-        extractedText = fileContent.toString('utf-8');
-        break;
-      default:
-        throw new Error(`Unsupported file type: ${fileType}`);
-    }
-
-    // In production, you would:
-    // 1. Extract text from document
-    // 2. Generate summary using OpenAI
-    // 3. Index in Elasticsearch
-    // 4. Update database
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        message: 'Document processed successfully',
-        key: key,
-        extractedLength: extractedText.length,
-      }),
-    };
-  } catch (error) {
-    console.error('Error processing document:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        error: 'Failed to process document',
-        message: error.message,
-      }),
-    };
+  const records = event.Records || []
+  if (records.length === 0) {
+    return { statusCode: 400, body: JSON.stringify({ error: 'No S3 records' }) }
   }
-};
+
+  const results = []
+  const errors = []
+
+  for (const record of records) {
+    try {
+      results.push(await processRecord(record))
+    } catch (err) {
+      console.error('Record failed:', err)
+      errors.push({
+        key: record.s3?.object?.key,
+        message: err.message,
+      })
+    }
+  }
+
+  const statusCode = errors.length === records.length ? 500 : 200
+  return {
+    statusCode,
+    body: JSON.stringify({
+      processed: results.length,
+      errors: errors.length,
+      results,
+      errors,
+    }),
+  }
+}
