@@ -28,18 +28,18 @@ export class AIService {
           this.initializeGroq()
           break
         
-        // case 'openai':
-        //   this.initializeOpenAI()
-        //   break
-        
+        case 'openai':
+          this.initializeOpenAI()
+          break
+
         // case 'gemini':
         //   this.initializeGemini()
         //   break
-        
+
         // case 'ollama':
         //   this.initializeOllama()
         //   break
-        
+
         default:
           console.log(`Unknown AI provider: ${this.provider}, using mock summaries`)
           this.useMockSummary = true
@@ -69,55 +69,36 @@ export class AIService {
     this.initializeSummarizationChain()
   }
 
-  // private initializeOpenAI() {
-  //   const apiKey = this.configService.get('OPENAI_API_KEY', '')
-  //   
-  //   if (!apiKey || apiKey === 'sk-your-key-here') {
-  //     throw new Error('OPENAI_API_KEY not configured')
-  //   }
-  //   
-  //   console.log('Using OpenAI for AI summaries')
-  //   
-  //   this.llm = new ChatOpenAI({
-  //     openAIApiKey: apiKey,
-  //     modelName: this.configService.get('OPENAI_MODEL', 'gpt-3.5-turbo'),
-  //     temperature: 0.7,
-  //   })
-  //
-  //   this.initializeSummarizationChain()
-  // }
+  private initializeOpenAI() {
+    const apiKey = this.configService.get('OPENAI_API_KEY', '')
 
+    if (!apiKey || apiKey === 'sk-your-key-here') {
+      throw new Error('OPENAI_API_KEY not configured')
+    }
+
+    console.log('Using OpenAI for AI summaries')
+
+    this.llm = new ChatOpenAI({
+      openAIApiKey: apiKey,
+      modelName: this.configService.get('OPENAI_MODEL', 'gpt-3.5-turbo'),
+      temperature: 0.7,
+    })
+
+    this.initializeSummarizationChain()
+  }
+
+  // Requires @langchain/google-genai — enable when dependency is added
   // private initializeGemini() {
   //   const apiKey = this.configService.get('GOOGLE_API_KEY', '')
-  //   
   //   if (!apiKey || apiKey === 'your-google-api-key-here') {
   //     throw new Error('GOOGLE_API_KEY not configured')
   //   }
-  //   
-  //   console.log('Using Google Gemini for AI summaries')
-  //   
-  //   this.llm = new ChatGoogleGenerativeAI({
-  //     apiKey: apiKey,
-  //     modelName: this.configService.get('GEMINI_MODEL', 'gemini-1.5-flash'),
-  //     temperature: 0.7,
-  //   })
-  //
+  //   this.llm = new ChatGoogleGenerativeAI({ ... })
   //   this.initializeSummarizationChain()
   // }
 
-  // private initializeOllama() {
-  //   const baseUrl = this.configService.get('OLLAMA_BASE_URL', 'http://localhost:11434')
-  //   
-  //   console.log('Using Ollama for AI summaries')
-  //   
-  //   this.llm = new ChatOllama({
-  //     baseUrl: baseUrl,
-  //     model: this.configService.get('OLLAMA_MODEL', 'llama3.2'),
-  //     temperature: 0.7,
-  //   })
-  //
-  //   this.initializeSummarizationChain()
-  // }
+  // Requires @langchain/ollama — enable when dependency is added
+  // private initializeOllama() { ... }
 
   private initializeSummarizationChain() {
     const summarizationPrompt = PromptTemplate.fromTemplate(`

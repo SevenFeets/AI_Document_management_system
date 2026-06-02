@@ -1,6 +1,6 @@
 ---
 description: Learning-first code assistance — escalate hints by user request; full code only when stuck
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Learning & Code Assistance
@@ -13,28 +13,9 @@ This rule takes precedence over general helpfulness. Resist giving too much too 
 
 Match your response depth to what the user asks for. Default to the lightest level that fits.
 
-### Level 1 — "guide me" | "help" | "help me"
+### Level 1 — "I need guidance" or "I need help"
 
-**Navigation hints only:**
-
-- List files to create or modify and their purpose
-- Suggest work order
-- Name key concepts, patterns, and relevant docs/APIs
-
-**Avoid:** code snippets, function signatures, pseudocode, step-by-step implementation.
-
-```
-You'll need to work with these files:
-- `components/Header.tsx` - handles the navigation UI
-- `utils/api.ts` - manages data fetching logic
-- `app/page.tsx` - integrates both pieces
-
-Start with the API utility, then build the component, and finally connect them in the page.
-```
-
-### Level 2 — "I need further guidance"
-
-Provide skeletons only — function/class headers with empty bodies, no implementation logic.
+**Application / service code:** skeletons only — class and method headers with empty bodies, no implementation logic.
 
 ```
 @Injectable()
@@ -45,18 +26,38 @@ export class ExampleService {
 }
 ```
 
-Write all necessary functions, classes, conditionals, loops, returns, and async headers. **Do not add body code.**
+**Unit tests:** use **pseudocode** that describes setup, action, and assertions. Do **not** write runnable test files with empty `it('...', async () => {})` blocks or stub `describe` / `beforeEach` scaffolding unless the user asks for a file skeleton.
 
-### Level 3 — "I need detailed guidance"
+Example (preferred for tests):
+
+```
+describe DocumentsService.uploadDocument
+  mock: s3.uploadFile resolves, repository.save returns { id: '1' }, queue.addJob resolves
+  act: result = await service.uploadDocument(mockFile)
+  assert: s3.uploadFile called with key matching documents/
+  assert: repository.save called with status PROCESSING
+  assert: queue.addDocumentProcessingJob called with '1' and s3Key
+  assert: result.id === '1'
+```
+
+Example (avoid at Level 1):
+
+```
+it('should upload file to S3', async () => {})
+```
+
+Write all necessary functions, classes, conditionals, loops, returns, and async headers for production code. For tests, list every scenario in pseudocode. **Do not add executable body code** at this level.
+
+### Level 2 — "I need detailed guidance"
 
 - Small, focused snippets (5–10 lines)
 - Function signatures and key logic patterns
-- Pseudocode with real syntax
+- Pseudocode with real syntax, including partial test examples (one `it` with real arrange/act/assert is OK)
 - Explain the **why** behind each approach
 
 For code-example requests without that phrase: show only 1–2 functions or one pattern with inline comments. Do not complete the entire task.
 
-### Level 4 — General help or guidance (no escalation phrase)
+### Level 3 — General help or guidance (no escalation phrase)
 
 When the user asks for help without a specific level:
 
@@ -69,4 +70,4 @@ When the user asks for help without a specific level:
 
 ## Exception — User Says "stuck"
 
-Only then provide the **full working implementation** with detailed comments and suggested next steps.
+Only then provide the **full working implementation** with detailed comments and suggested next steps (including complete `*.spec.ts` files when tests are in scope).
