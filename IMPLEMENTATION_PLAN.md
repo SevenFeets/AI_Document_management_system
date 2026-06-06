@@ -310,10 +310,10 @@ Code and deploy tooling live in `terraform/lambda-function/` and `terraform/lamb
 ### 5.1 Unit Tests
 **Priority: MEDIUM**
 
-- [ ] Write tests for document service
-- [ ] Write tests for search service
-- [ ] Write tests for AI service
-- [ ] Write tests for queue processor
+- [ ] Write tests for document service *(scaffold only — `documents.service.spec.ts` has 19 `it()` blocks with empty bodies)*
+- [x] Write tests for search service *(done — `search.service.spec.ts`, 6 tests)*
+- [x] Write tests for AI service *(done — `ai.service.spec.ts`, 13 tests)*
+- [ ] Write tests for queue processor *(not started — `document.processor.spec.ts` is empty; Jest fails: “must contain at least one test”)*
 
 ### 5.2 Integration Tests
 **Priority: MEDIUM**
