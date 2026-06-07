@@ -116,12 +116,12 @@ describe('DocumentsService', () => {
 
       await service.findAll()
 
-      expect(repository.find).toHaveBeenCalledTimes(1)
+      expect(repository.find).toHaveBeenCalledTimes(1) 
       expect(repository.find).toHaveBeenCalledWith({
         order: { uploadDate: 'DESC' },
       })
     })
-
+    
     it('should map entities to DTO shape', async () => {
       const entity = createMockEntity()
       repository.find.mockResolvedValue([entity])

@@ -1,4 +1,4 @@
-import { Test, TestingModule } from '@nestjs/testing'
+ import { Test, TestingModule } from '@nestjs/testing'
 import { ConfigService } from '@nestjs/config'
 import { RunnableSequence } from '@langchain/core/runnables'
 import { AIService } from './ai.service'
