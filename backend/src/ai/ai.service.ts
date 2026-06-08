@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ChatOpenAI } from '@langchain/openai'
 import { ChatGroq } from '@langchain/groq'
@@ -11,6 +11,7 @@ import { BaseChatModel } from '@langchain/core/language_models/chat_models'
 
 @Injectable()
 export class AIService {
+  private readonly logger = new Logger(AIService.name)
   private llm: BaseChatModel
   private summarizationChain: RunnableSequence
   private useMockSummary: boolean
@@ -41,12 +42,14 @@ export class AIService {
         //   break
 
         default:
-          console.log(`Unknown AI provider: ${this.provider}, using mock summaries`)
+          this.logger.warn(`Unknown AI provider: ${this.provider}, using mock summaries`)
           this.useMockSummary = true
       }
     } catch (error) {
-      console.error(`Failed to initialize ${this.provider}:`, error.message)
-      console.log('Falling back to mock AI summaries')
+      this.logger.error(
+        `Failed to initialize ${this.provider}: ${error instanceof Error ? error.message : error}`,
+      )
+      this.logger.warn('Falling back to mock AI summaries')
       this.useMockSummary = true
     }
   }
@@ -58,7 +61,7 @@ export class AIService {
       throw new Error('GROQ_API_KEY not configured')
     }
     
-    console.log('Using Groq for AI summaries')
+    this.logger.log('Using Groq for AI summaries')
     
     this.llm = new ChatGroq({
       apiKey: apiKey,
@@ -76,7 +79,7 @@ export class AIService {
       throw new Error('OPENAI_API_KEY not configured')
     }
 
-    console.log('Using OpenAI for AI summaries')
+    this.logger.log('Using OpenAI for AI summaries')
 
     this.llm = new ChatOpenAI({
       openAIApiKey: apiKey,
@@ -143,8 +146,11 @@ export class AIService {
 
       return result
     } catch (error) {
-      console.error('Error in AI summarization:', error)
-      throw new Error('Failed to generate summary')
+      this.logger.error(
+        `Error in AI summarization: ${error instanceof Error ? error.message : error}`,
+        error instanceof Error ? error.stack : undefined,
+      )
+      throw new InternalServerErrorException('Failed to generate summary')
     }
   }
 
@@ -182,8 +188,11 @@ export class AIService {
       const result = await chain.invoke({ content: truncatedContent })
       return result
     } catch (error) {
-      console.error('Error generating summary:', error)
-      throw new Error('Failed to generate summary')
+      this.logger.error(
+        `Error generating summary: ${error instanceof Error ? error.message : error}`,
+        error instanceof Error ? error.stack : undefined,
+      )
+      throw new InternalServerErrorException('Failed to generate summary')
     }
   }
 }

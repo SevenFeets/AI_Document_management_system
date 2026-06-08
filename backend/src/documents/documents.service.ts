@@ -1,4 +1,11 @@
-import { Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, Not, IsNull } from 'typeorm'
 import { DocumentEntity, DocumentStatus } from '../database/entities/document.entity'
@@ -8,12 +15,15 @@ import { ElasticsearchService } from '../elasticsearch/elasticsearch.service'
 
 @Injectable()
 export class DocumentsService {
+  private readonly logger = new Logger(DocumentsService.name)
+
   constructor(
     @InjectRepository(DocumentEntity)
     private documentRepository: Repository<DocumentEntity>,
     private s3Service: S3Service,
     private queueService: QueueService,
     private elasticsearchService: ElasticsearchService,
+    private configService: ConfigService,
   ) {}
 
   async findAll() {
@@ -30,7 +40,7 @@ export class DocumentsService {
     })
 
     if (!document) {
-      throw new Error(`Document with ID ${id} not found`)
+      throw new NotFoundException(`Document with ID ${id} not found`)
     }
 
     return this.toDTO(document)
@@ -38,7 +48,7 @@ export class DocumentsService {
 
   async uploadDocument(file: Express.Multer.File) {
     const s3Key = `documents/${Date.now()}-${file.originalname}`
-    const bucket = process.env.AWS_S3_BUCKET || 'document-search'
+    const bucket = this.configService.get<string>('AWS_S3_BUCKET', 'document-search')
 
     // Upload to S3
     await this.s3Service.uploadFile(file, s3Key)
@@ -71,7 +81,7 @@ export class DocumentsService {
     })
 
     if (!document) {
-      throw new Error(`Document with ID ${id} not found`)
+      throw new NotFoundException(`Document with ID ${id} not found`)
     }
 
     // Delete from S3
@@ -81,7 +91,9 @@ export class DocumentsService {
     try {
       await this.elasticsearchService.deleteDocument(id)
     } catch (error) {
-      console.error('Error deleting from Elasticsearch:', error)
+      this.logger.warn(
+        `Elasticsearch delete failed for document ${id}: ${error instanceof Error ? error.message : error}`,
+      )
     }
 
     // Delete from database
@@ -113,7 +125,7 @@ export class DocumentsService {
       },
     })
 
-    console.log(`Found ${indexedDocuments.length} documents to reindex`)
+    this.logger.log(`Found ${indexedDocuments.length} documents to reindex`)
 
     let successCount = 0
     let failureCount = 0
@@ -132,10 +144,12 @@ export class DocumentsService {
           uploadDate: document.uploadDate,
         })
 
-        console.log(`Successfully reindexed document: ${document.id}`)
+        this.logger.log(`Successfully reindexed document: ${document.id}`)
         successCount++
       } catch (error) {
-        console.error(`Failed to reindex document ${document.id}:`, error.message)
+        this.logger.error(
+          `Failed to reindex document ${document.id}: ${error instanceof Error ? error.message : error}`,
+        )
         failureCount++
       }
     }
@@ -156,17 +170,17 @@ export class DocumentsService {
 
     // If not found, throw error
     if (!document) {
-      throw new Error(`Document with ID ${id} not found`)
+      throw new NotFoundException(`Document with ID ${id} not found`)
     }
 
-    // If status is not 'indexed', throw error
     if (document.status !== DocumentStatus.INDEXED) {
-      throw new Error(`Document is not in indexed status. Current status: ${document.status}`)
+      throw new BadRequestException(
+        `Document is not in indexed status. Current status: ${document.status}`,
+      )
     }
 
-    // If no extractedText, throw error
     if (!document.extractedText) {
-      throw new Error(`Document has no extracted text to index`)
+      throw new BadRequestException('Document has no extracted text to index')
     }
 
     // Call elasticsearchService.indexDocument()
@@ -181,15 +195,19 @@ export class DocumentsService {
         uploadDate: document.uploadDate,
       })
 
-      console.log(`Successfully reindexed document: ${document.id}`)
+      this.logger.log(`Successfully reindexed document: ${document.id}`)
 
       return {
         success: true,
         message: `Document ${document.filename} reindexed successfully`,
       }
     } catch (error) {
-      console.error(`Failed to reindex document ${id}:`, error.message)
-      throw new Error(`Failed to reindex document: ${error.message}`)
+      this.logger.error(
+        `Failed to reindex document ${id}: ${error instanceof Error ? error.message : error}`,
+      )
+      throw new InternalServerErrorException(
+        `Failed to reindex document: ${error instanceof Error ? error.message : error}`,
+      )
     }
   }
 }

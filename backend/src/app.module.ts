@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import configuration from './config/configuration'
+import { validate } from './config/env.validation'
 import { DocumentsModule } from './documents/documents.module'
 import { SearchModule } from './search/search.module'
 import { UploadModule } from './upload/upload.module'
@@ -14,6 +16,8 @@ import { S3Module } from './s3/s3.module'
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      load: [configuration],
+      validate,
     }),
     DatabaseModule,
     ElasticsearchModule,

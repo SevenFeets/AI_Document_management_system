@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common'
 import { ElasticsearchService as NestElasticsearchService } from '@nestjs/elasticsearch'
 
 @Injectable()
 export class ElasticsearchService {
+  private readonly logger = new Logger(ElasticsearchService.name)
   private readonly indexName = 'documents'
 
   constructor(
@@ -82,7 +83,9 @@ export class ElasticsearchService {
     try {
       await this.createIndexIfNotExists()
 
-      console.log(`Indexing document in Elasticsearch: ${document.id} (${document.filename})`)
+      this.logger.log(
+        `Indexing document in Elasticsearch: ${document.id} (${document.filename})`,
+      )
 
       const result = await this.elasticsearchService.index({
         index: this.indexName,
@@ -98,12 +101,12 @@ export class ElasticsearchService {
         },
       })
 
-      console.log(`Successfully indexed document: ${document.id}`)
+      this.logger.log(`Successfully indexed document: ${document.id}`)
       return result
     } catch (error) {
-      console.error(`Failed to index document ${document.id}:`, error.message)
-      console.error('Full error:', error)
-      throw new Error(`Elasticsearch indexing failed: ${error.message}`)
+      const message = error instanceof Error ? error.message : String(error)
+      this.logger.error(`Failed to index document ${document.id}: ${message}`, error instanceof Error ? error.stack : undefined)
+      throw new InternalServerErrorException(`Elasticsearch indexing failed: ${message}`)
     }
   }
 

@@ -298,10 +298,10 @@ Code and deploy tooling live in `terraform/lambda-function/` and `terraform/lamb
 ### 4.4 Update Backend for Production
 **Priority: MEDIUM**
 
-- [ ] Use environment variables for all configs
-- [ ] Add proper error handling
-- [ ] Add logging
-- [ ] Configure CORS properly
+- [DONE] Use environment variables for all configs — centralized `config/configuration.ts`, `backend/.env.example`, validation on startup
+- [DONE] Add proper error handling — `GlobalExceptionFilter`, NestJS `HttpException` types in services
+- [DONE] Add logging — NestJS `Logger` in services, configurable `LOG_LEVEL`
+- [DONE] Configure CORS properly — `config/cors.config.ts`, `CORS_ORIGINS` / `FRONTEND_URL`
 
 ---
 

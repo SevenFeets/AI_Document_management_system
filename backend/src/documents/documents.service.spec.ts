@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
+import { ConfigService } from '@nestjs/config'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { IsNull, Not } from 'typeorm'
 import { DocumentsService } from './documents.service'
@@ -103,6 +104,15 @@ describe('DocumentsService', () => {
         {
           provide: ElasticsearchService,
           useValue: elasticsearchService,
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn((key: string, defaultValue?: string) => {
+              if (key === 'AWS_S3_BUCKET') return 'document-search'
+              return defaultValue
+            }),
+          },
         },
       ],
     }).compile()

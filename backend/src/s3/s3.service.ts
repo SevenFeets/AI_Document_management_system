@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
@@ -9,6 +9,7 @@ import * as path from 'path'
 
 @Injectable()
 export class S3Service {
+  private readonly logger = new Logger(S3Service.name)
   private s3Client: S3Client
   private bucketName: string
   private useLocalStorage: boolean
@@ -24,7 +25,7 @@ export class S3Service {
     
     if (this.useLocalStorage) {
       this.localStoragePath = path.join(process.cwd(), 'uploads')
-      console.log('Using local storage for file uploads at:', this.localStoragePath)
+      this.logger.log(`Using local storage for file uploads at: ${this.localStoragePath}`)
     } else {
       this.s3Client = new S3Client({
         region: this.configService.get('AWS_REGION', 'us-east-1'),
@@ -34,7 +35,7 @@ export class S3Service {
         },
       })
       this.bucketName = this.configService.get('AWS_S3_BUCKET', 'document-search')
-      console.log('Using AWS S3 for file uploads')
+      this.logger.log('Using AWS S3 for file uploads')
     }
   }
 
@@ -50,7 +51,7 @@ export class S3Service {
       // Write file
       await fs.writeFile(filePath, file.buffer)
       
-      console.log('File saved locally:', filePath)
+      this.logger.debug(`File saved locally: ${filePath}`)
       return key
     }
 
@@ -110,11 +111,15 @@ export class S3Service {
 
     const response = await this.s3Client.send(command)
     if (!response.Body) {
-      throw new Error(`File ${key} not found in S3`)
+      throw new NotFoundException(`File ${key} not found in S3`)
     }
 
     const stream = response.Body as Readable
     return await this.streamToBuffer(stream)
+  }
+
+  getBucketName(): string {
+    return this.bucketName
   }
 
   // Helper method to convert stream to buffer

@@ -1,6 +1,6 @@
 import { Processor, Process } from '@nestjs/bull'
 import { Job } from 'bull'
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { DocumentEntity, DocumentStatus } from '../../database/entities/document.entity'
@@ -12,6 +12,8 @@ import { DocumentParserService } from '../../documents/services/document-parser.
 @Processor('document-processing')
 @Injectable()
 export class DocumentProcessor {
+  private readonly logger = new Logger(DocumentProcessor.name)
+
   constructor(
     @InjectRepository(DocumentEntity)
     private documentRepository: Repository<DocumentEntity>,
@@ -56,7 +58,7 @@ export class DocumentProcessor {
 
       // Index in Elasticsearch
       job.progress(80)
-      console.log(`Indexing document in Elasticsearch: ${documentId}`)
+      this.logger.log(`Indexing document in Elasticsearch: ${documentId}`)
       
       await this.elasticsearchService.indexDocument({
         id: document.id,
@@ -68,7 +70,7 @@ export class DocumentProcessor {
         uploadDate: document.uploadDate,
       })
 
-      console.log(`Successfully indexed document in Elasticsearch: ${documentId}`)
+      this.logger.log(`Successfully indexed document in Elasticsearch: ${documentId}`)
 
       // Only mark as INDEXED after successful Elasticsearch indexing
       document.status = DocumentStatus.INDEXED
@@ -77,7 +79,10 @@ export class DocumentProcessor {
       job.progress(100)
       return { success: true, documentId }
     } catch (error) {
-      console.error(`Error processing document ${documentId}:`, error)
+      this.logger.error(
+        `Error processing document ${documentId}: ${error instanceof Error ? error.message : error}`,
+        error instanceof Error ? error.stack : undefined,
+      )
 
       // Update document status to error
       await this.documentRepository.update(documentId, {

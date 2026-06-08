@@ -61,8 +61,12 @@ OPENAI_MODEL=gpt-3.5-turbo
 # Application
 PORT=4000
 NODE_ENV=development
+LOG_LEVEL=debug
 FRONTEND_URL=http://localhost:3000
+# CORS_ORIGINS=http://localhost:3000,https://app.example.com
 ```
+
+Copy from `backend/.env.example` as a starting point.
 
 ### Running the Application
 
