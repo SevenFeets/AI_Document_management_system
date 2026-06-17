@@ -1,0 +1,59 @@
+---
+description: Load this chat's conversation summary from conversationContext before answering
+alwaysApply: true
+---
+
+# Conversation Context — Read (always on)
+
+Before answering, bind this chat to **one folder** and read its `_index.md`.
+
+**Chat tab titles are usually NOT visible to the agent.** Do not wait for them. Use the bind order below.
+
+## Bind `{Title}` (once per chat — remember for later turns)
+
+1. User `@`-mentioned `conversationContext/{Title}/` (specific subfolder) → **{Title}**
+2. User wrote `Conversation title: …` or `כותרת שיחה: …` → that string
+3. **Topic from the user's message** — short phrase from the subject (e.g. `implementation_plan build order`). Max ~50 chars. Safe for Windows paths.
+4. Chat tab title **only if** it appears explicitly in system/context (rare)
+5. If still unclear, ask once — **never** pick another conversation's folder
+
+`@conversationContext/` (root only) does **not** bind.
+
+## First turn — mandatory filesystem setup
+
+If `conversationContext/{Title}/` does not exist, **create it now** (Write tool):
+
+1. `conversationContext/{Title}/_index.md` — idle template below; set **Goal** from the user's first message
+2. **Status:** `in progress`
+
+Do not answer until the folder exists or you asked for **{Title}**.
+
+## Every turn
+
+1. Read `conversationContext/{Title}/_index.md`
+2. Use **Decisions** / **Done** as continuity when Status is not `idle`
+3. Do not read other subfolders
+
+## Boundaries
+
+- Does not replace `memory-bank/`
+- Keep `_index.md` under ~80 lines
+
+## `_index.md` template
+
+```markdown
+# {Title}
+
+**Last updated:** YYYY-MM-DD
+**Status:** in progress
+
+## Goal
+
+## Decisions
+
+## Done
+
+## Open / next
+
+## Files touched
+```

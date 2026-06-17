@@ -318,10 +318,10 @@ Code and deploy tooling live in `terraform/lambda-function/` and `terraform/lamb
 ### 5.2 Integration Tests
 **Priority: MEDIUM**
 
-- [ ] Test full upload flow
-- [ ] Test search flow
-- [ ] Test summarization flow
-- [ ] Test error scenarios
+- [DONE] Test full upload flow — `test/integration/upload.integration-spec.ts`
+- [DONE] Test search flow — `test/integration/search.integration-spec.ts`
+- [DONE] Test summarization flow — `test/integration/search.integration-spec.ts`
+- [DONE] Test error scenarios — `test/integration/errors.integration-spec.ts`
 
 ### 5.3 End-to-End Testing
 **Priority: LOW**

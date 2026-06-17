@@ -79,6 +79,18 @@ npm run build
 npm run start:prod
 ```
 
+### Testing
+
+```bash
+# Unit tests
+npm test
+
+# Integration tests (HTTP flows via supertest; requires PostgreSQL)
+npm run test:integration
+```
+
+Integration tests use `DB_NAME=document_search_test` by default. Start Postgres (e.g. `docker-compose up -d postgres`) and ensure `DB_*` env vars match your instance.
+
 ## API Endpoints
 
 ### Documents
