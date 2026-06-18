@@ -1,34 +1,29 @@
-# Integration Tests (5.2)
+# Integration Tests (5.2) / E2E (5.3)
 
-**Goal:** Implement IMPLEMENTATION_PLAN §5.2 — integration tests for upload, search, summarization, and error flows.
+**Goal:** IMPLEMENTATION_PLAN §5.2–5.3 backend test coverage.
 
 **Status:** done
 
-**Last updated:** 2026-06-08
+**Last updated:** 2026-06-17
 
 ## Decisions
 
-- HTTP integration tests via **supertest** against a slim `IntegrationTestModule` (controllers + services + real Postgres, mocked S3/ES/Queue/AI).
-- Tests skip gracefully when Postgres is unavailable; CI runs against the `document_search_test` database.
-- `npm run test:integration` added; CI job runs after unit tests.
+- E2E = API-level workflows via supertest (not Playwright); reuses integration test harness.
+- `npm` scripts use `node node_modules/jest/bin/jest.js` for Windows paths with `&`.
 
 ## Done
 
-- Upload flow: POST upload → S3 + queue + DB; GET list/detail
-- Search flow: GET `/api/search?q=` delegates to mocked Elasticsearch
-- Summarization flow: POST `/api/search/summarize` with seeded document
-- Error scenarios: 404, 400 (missing/invalid upload), summarize on missing doc
-- `test/jest-integration.json`, CI step, IMPLEMENTATION_PLAN §5.2 marked complete
+- §5.2 integration tests (upload, search, summarize, errors)
+- §5.3 E2E: full workflow, file types, large files, concurrent uploads
+- `test/e2e/api.e2e-spec.ts`, `test/jest-e2e.json`, CI `test:e2e` job
 
 ## Open / next
 
-- Run integration tests locally with `docker-compose up -d postgres` and `DB_PORT=5433` if using compose port mapping
-- Phase 5.3 E2E testing (optional)
+- Phase 5.4 performance testing
+- Optional: Playwright UI E2E later
 
 ## Files touched
 
-- `backend/test/integration/` — specs + support (mocks, module, factory)
-- `backend/test/jest-integration.json`
-- `backend/package.json` — `test:integration` script
-- `.github/workflows/ci-cd.yml` — integration test job
-- `IMPLEMENTATION_PLAN.md`, `backend/README.md`, `backend-patterns` skill
+- `backend/test/e2e/`
+- `backend/test/jest-e2e.json`
+- `backend/package.json`, CI, IMPLEMENTATION_PLAN.md, README

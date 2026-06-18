@@ -123,6 +123,7 @@ Use DTO classes with `class-validator` decorators for POST bodies.
 ```bash
 cd backend && npm test
 cd backend && npm run test:integration   # requires PostgreSQL (see DB_* env vars)
+cd backend && npm run test:e2e           # full API workflows; requires PostgreSQL
 ```
 
 CI runs with Postgres + Redis service containers. Set `DB_*` and `REDIS_*` env vars.

@@ -81,6 +81,17 @@ jobs:
           DB_NAME: document_search_test
           NODE_ENV: test
 
+      - name: E2E test backend
+        working-directory: ./backend
+        run: npm run test:e2e
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+          DB_NAME: document_search_test
+          NODE_ENV: test
+
       - name: Setup Node.js for frontend
         uses: actions/setup-node@v4
         with:

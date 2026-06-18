@@ -326,10 +326,10 @@ Code and deploy tooling live in `terraform/lambda-function/` and `terraform/lamb
 ### 5.3 End-to-End Testing
 **Priority: LOW**
 
-- [ ] Test complete user workflows
-- [ ] Test with various file types
-- [ ] Test with large files
-- [ ] Test concurrent uploads
+- [DONE] Test complete user workflows — `test/e2e/api.e2e-spec.ts` (upload → search → summarize → delete)
+- [DONE] Test with various file types — txt, pdf, doc, docx fixtures
+- [DONE] Test with large files — under/over 10MB limit
+- [DONE] Test concurrent uploads — five parallel uploads
 
 ### 5.4 Performance Testing
 **Priority: LOW**
