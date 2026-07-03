@@ -1,4 +1,5 @@
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common'
+import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common'
+import { Client } from '@elastic/elasticsearch'
 import { ElasticsearchService as NestElasticsearchService } from '@nestjs/elasticsearch'
 
 @Injectable()
@@ -7,16 +8,17 @@ export class ElasticsearchService {
   private readonly indexName = 'documents'
 
   constructor(
-    private readonly elasticsearchService: NestElasticsearchService,
+    @Inject(NestElasticsearchService)
+    private readonly esClient: Client,
   ) {}
 
   async createIndexIfNotExists() {
-    const exists = await this.elasticsearchService.indices.exists({
+    const exists = await this.esClient.indices.exists({
       index: this.indexName,
     })
 
     if (!exists) {
-      await this.elasticsearchService.indices.create({
+      await this.esClient.indices.create({
         index: this.indexName,
         body: {
           settings: {
@@ -87,7 +89,7 @@ export class ElasticsearchService {
         `Indexing document in Elasticsearch: ${document.id} (${document.filename})`,
       )
 
-      const result = await this.elasticsearchService.index({
+      const result = await this.esClient.index({
         index: this.indexName,
         id: document.id,
         body: {
@@ -111,7 +113,7 @@ export class ElasticsearchService {
   }
 
   async search(query: string, size: number = 20) {
-    const result = await this.elasticsearchService.search({
+    const result = await this.esClient.search({
       index: this.indexName,
       body: {
         track_total_hits: false,
@@ -170,7 +172,7 @@ export class ElasticsearchService {
   }
 
   async deleteDocument(id: string) {
-    return await this.elasticsearchService.delete({
+    return await this.esClient.delete({
       index: this.indexName,
       id,
     })

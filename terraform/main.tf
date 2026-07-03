@@ -1,6 +1,6 @@
 terraform {
   required_version = ">= 1.0"
-  
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -11,12 +11,27 @@ terraform {
   backend "s3" {
     bucket = "document-search-terraform-state"
     key    = "terraform.tfstate"
-    region = "us-east-1"
+    region = "il-central-1"
   }
 }
 
 provider "aws" {
   region = var.aws_region
+}
+
+data "aws_ami" "amazon_linux_2" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
 }
 
 # VPC
@@ -188,17 +203,17 @@ resource "aws_iam_role_policy" "lambda_s3" {
 
 # Lambda Function for Document Processing
 resource "aws_lambda_function" "document_processor" {
-  filename         = "lambda_function.zip"
-  function_name    = "document-processor"
-  role            = aws_iam_role.lambda.arn
-  handler         = "index.handler"
-  runtime         = "nodejs18.x"
-  timeout         = 300
-  memory_size     = 512
+  filename      = "lambda_function.zip"
+  function_name = "document-processor"
+  role          = aws_iam_role.lambda.arn
+  handler       = "index.handler"
+  runtime       = "nodejs18.x"
+  timeout       = 300
+  memory_size   = 512
 
   environment {
     variables = {
-      S3_BUCKET = aws_s3_bucket.documents.id
+      S3_BUCKET      = aws_s3_bucket.documents.id
       OPENAI_API_KEY = var.openai_api_key
     }
   }
@@ -210,7 +225,7 @@ resource "aws_lambda_function" "document_processor" {
 
 # EC2 Instance
 resource "aws_instance" "app" {
-  ami           = var.ec2_ami_id
+  ami           = coalesce(var.ec2_ami_id, data.aws_ami.amazon_linux_2.id)
   instance_type = var.ec2_instance_type
   subnet_id     = aws_subnet.public.id
   key_name      = var.ec2_key_name
