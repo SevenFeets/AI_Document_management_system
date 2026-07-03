@@ -90,6 +90,9 @@ npm run test:integration
 
 # End-to-end API workflows (file types, large files, concurrency)
 npm run test:e2e
+
+# Performance benchmarks (latency thresholds in test/performance/support/thresholds.ts)
+npm run test:performance
 ```
 
 Integration tests use `DB_NAME=document_search_test` by default. Start Postgres (e.g. `docker-compose up -d postgres`) and ensure `DB_*` env vars match your instance.

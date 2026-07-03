@@ -114,6 +114,8 @@ export class ElasticsearchService {
     const result = await this.elasticsearchService.search({
       index: this.indexName,
       body: {
+        track_total_hits: false,
+        _source: ['id', 'title', 'filename', 'content', 'fileType', 'uploadDate'],
         query: {
           multi_match: {
             query,

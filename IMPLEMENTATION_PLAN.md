@@ -334,10 +334,10 @@ Code and deploy tooling live in `terraform/lambda-function/` and `terraform/lamb
 ### 5.4 Performance Testing
 **Priority: LOW**
 
-- [ ] Test search performance
-- [ ] Test upload performance
-- [ ] Test with multiple users
-- [ ] Optimize slow queries
+- [DONE] Test search performance
+- [DONE] Test upload performance
+- [DONE] Test with multiple users
+- [DONE] Optimize slow queries -> needs recheck
 
 ---
 

@@ -16,6 +16,7 @@
     "test": "node node_modules/jest/bin/jest.js",
     "test:integration": "node node_modules/jest/bin/jest.js --config ./test/jest-integration.json",
     "test:e2e": "node node_modules/jest/bin/jest.js --config ./test/jest-e2e.json",
+    "test:performance": "node node_modules/jest/bin/jest.js --config ./test/jest-performance.json",
     "test:watch": "node node_modules/jest/bin/jest.js --watch",
     "test:cov": "node node_modules/jest/bin/jest.js --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/jest/bin/jest.js --runInBand"
