@@ -47,6 +47,3 @@ Thumbs.db
 
 # TypeScript incremental build info
 *.tsbuildinfo
-
-# Conversations
-conversationContext/
