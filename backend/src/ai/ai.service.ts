@@ -64,7 +64,11 @@ export class AIService {
     const apiKey = this.configService.get('GROQ_API_KEY', '');
 
     if (!apiKey || apiKey === 'your-groq-api-key-here') {
-      throw new Error('GROQ_API_KEY not configured');
+      this.logger.warn(
+        'GROQ_API_KEY missing or placeholder — using mock summaries',
+      );
+      this.useMockSummary = true;
+      return;
     }
 
     this.logger.log('Using Groq for AI summaries');
@@ -82,7 +86,11 @@ export class AIService {
     const apiKey = this.configService.get('OPENAI_API_KEY', '');
 
     if (!apiKey || apiKey === 'sk-your-key-here') {
-      throw new Error('OPENAI_API_KEY not configured');
+      this.logger.warn(
+        'OPENAI_API_KEY missing or placeholder — using mock summaries',
+      );
+      this.useMockSummary = true;
+      return;
     }
 
     this.logger.log('Using OpenAI for AI summaries');
