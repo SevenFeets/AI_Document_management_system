@@ -1,18 +1,21 @@
-import { Processor, Process } from '@nestjs/bull'
-import { Job } from 'bull'
-import { Injectable, Logger } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
-import { DocumentEntity, DocumentStatus } from '../../database/entities/document.entity'
-import { ElasticsearchService } from '../../elasticsearch/elasticsearch.service'
-import { S3Service } from '../../s3/s3.service'
-import { AIService } from '../../ai/ai.service'
-import { DocumentParserService } from '../../documents/services/document-parser.service'
+import { Processor, Process } from '@nestjs/bull';
+import { Job } from 'bull';
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import {
+  DocumentEntity,
+  DocumentStatus,
+} from '../../database/entities/document.entity';
+import { ElasticsearchService } from '../../elasticsearch/elasticsearch.service';
+import { S3Service } from '../../s3/s3.service';
+import { AIService } from '../../ai/ai.service';
+import { DocumentParserService } from '../../documents/services/document-parser.service';
 
 @Processor('document-processing')
 @Injectable()
 export class DocumentProcessor {
-  private readonly logger = new Logger(DocumentProcessor.name)
+  private readonly logger = new Logger(DocumentProcessor.name);
 
   constructor(
     @InjectRepository(DocumentEntity)
@@ -24,42 +27,44 @@ export class DocumentProcessor {
   ) {}
 
   @Process('process-document')
-  async handleDocumentProcessing(job: Job<{ documentId: string; s3Key: string }>) {
-    const { documentId, s3Key } = job.data
+  async handleDocumentProcessing(
+    job: Job<{ documentId: string; s3Key: string }>,
+  ) {
+    const { documentId, s3Key } = job.data;
 
     try {
-      job.progress(10)
+      job.progress(10);
 
       // Fetch document from database
       const document = await this.documentRepository.findOne({
         where: { id: documentId },
-      })
+      });
 
       if (!document) {
-        throw new Error(`Document ${documentId} not found`)
+        throw new Error(`Document ${documentId} not found`);
       }
 
       // Parse document content (downloads from S3 and extracts text)
-      job.progress(40)
+      job.progress(40);
       const extractedText = await this.documentParserService.parseDocument(
         s3Key,
         document.fileType,
-      )
+      );
 
       // Update document with extracted text
-      document.extractedText = extractedText
-      await this.documentRepository.save(document)
+      document.extractedText = extractedText;
+      await this.documentRepository.save(document);
 
       // Generate summary using AI
-      job.progress(60)
-      const summary = await this.aiService.generateSummary(extractedText)
-      document.summary = summary
-      await this.documentRepository.save(document)
+      job.progress(60);
+      const summary = await this.aiService.generateSummary(extractedText);
+      document.summary = summary;
+      await this.documentRepository.save(document);
 
       // Index in Elasticsearch
-      job.progress(80)
-      this.logger.log(`Indexing document in Elasticsearch: ${documentId}`)
-      
+      job.progress(80);
+      this.logger.log(`Indexing document in Elasticsearch: ${documentId}`);
+
       await this.elasticsearchService.indexDocument({
         id: document.id,
         title: document.title,
@@ -68,28 +73,30 @@ export class DocumentProcessor {
         summary: summary,
         fileType: document.fileType,
         uploadDate: document.uploadDate,
-      })
+      });
 
-      this.logger.log(`Successfully indexed document in Elasticsearch: ${documentId}`)
+      this.logger.log(
+        `Successfully indexed document in Elasticsearch: ${documentId}`,
+      );
 
       // Only mark as INDEXED after successful Elasticsearch indexing
-      document.status = DocumentStatus.INDEXED
-      await this.documentRepository.save(document)
+      document.status = DocumentStatus.INDEXED;
+      await this.documentRepository.save(document);
 
-      job.progress(100)
-      return { success: true, documentId }
+      job.progress(100);
+      return { success: true, documentId };
     } catch (error) {
       this.logger.error(
         `Error processing document ${documentId}: ${error instanceof Error ? error.message : error}`,
         error instanceof Error ? error.stack : undefined,
-      )
+      );
 
       // Update document status to error
       await this.documentRepository.update(documentId, {
         status: DocumentStatus.ERROR,
-      })
+      });
 
-      throw error
+      throw error;
     }
   }
 }

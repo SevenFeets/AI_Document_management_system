@@ -1,11 +1,16 @@
-import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common'
-import { Client } from '@elastic/elasticsearch'
-import { ElasticsearchService as NestElasticsearchService } from '@nestjs/elasticsearch'
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
+import { Client } from '@elastic/elasticsearch';
+import { ElasticsearchService as NestElasticsearchService } from '@nestjs/elasticsearch';
 
 @Injectable()
 export class ElasticsearchService {
-  private readonly logger = new Logger(ElasticsearchService.name)
-  private readonly indexName = 'documents'
+  private readonly logger = new Logger(ElasticsearchService.name);
+  private readonly indexName = 'documents';
 
   constructor(
     @Inject(NestElasticsearchService)
@@ -15,7 +20,7 @@ export class ElasticsearchService {
   async createIndexIfNotExists() {
     const exists = await this.esClient.indices.exists({
       index: this.indexName,
-    })
+    });
 
     if (!exists) {
       await this.esClient.indices.create({
@@ -69,25 +74,25 @@ export class ElasticsearchService {
             },
           },
         },
-      })
+      });
     }
   }
 
   async indexDocument(document: {
-    id: string
-    title: string
-    filename: string
-    content: string
-    summary?: string
-    fileType: string
-    uploadDate: Date
+    id: string;
+    title: string;
+    filename: string;
+    content: string;
+    summary?: string;
+    fileType: string;
+    uploadDate: Date;
   }) {
     try {
-      await this.createIndexIfNotExists()
+      await this.createIndexIfNotExists();
 
       this.logger.log(
         `Indexing document in Elasticsearch: ${document.id} (${document.filename})`,
-      )
+      );
 
       const result = await this.esClient.index({
         index: this.indexName,
@@ -101,14 +106,19 @@ export class ElasticsearchService {
           fileType: document.fileType,
           uploadDate: document.uploadDate,
         },
-      })
+      });
 
-      this.logger.log(`Successfully indexed document: ${document.id}`)
-      return result
+      this.logger.log(`Successfully indexed document: ${document.id}`);
+      return result;
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
-      this.logger.error(`Failed to index document ${document.id}: ${message}`, error instanceof Error ? error.stack : undefined)
-      throw new InternalServerErrorException(`Elasticsearch indexing failed: ${message}`)
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(
+        `Failed to index document ${document.id}: ${message}`,
+        error instanceof Error ? error.stack : undefined,
+      );
+      throw new InternalServerErrorException(
+        `Elasticsearch indexing failed: ${message}`,
+      );
     }
   }
 
@@ -117,16 +127,23 @@ export class ElasticsearchService {
       index: this.indexName,
       body: {
         track_total_hits: false,
-        _source: ['id', 'title', 'filename', 'content', 'fileType', 'uploadDate'],
+        _source: [
+          'id',
+          'title',
+          'filename',
+          'content',
+          'fileType',
+          'uploadDate',
+        ],
         query: {
           multi_match: {
             query,
             fields: [
-              'title^3',              // Exact title match gets highest boost
+              'title^3', // Exact title match gets highest boost
               'title.autocomplete^2', // Partial title match
               'filename.autocomplete^2', // Partial filename match
-              'content',              // Content search
-              'summary',              // Summary search
+              'content', // Content search
+              'summary', // Summary search
             ],
             type: 'best_fields',
             fuzziness: 'AUTO',
@@ -150,7 +167,7 @@ export class ElasticsearchService {
         },
         size,
       },
-    })
+    });
 
     // ".hits" property directly to comply with correct typing
     return result.hits.hits.map((hit: any) => ({
@@ -168,13 +185,13 @@ export class ElasticsearchService {
         fileType: hit._source.fileType,
         uploadDate: hit._source.uploadDate,
       },
-    }))
+    }));
   }
 
   async deleteDocument(id: string) {
     return await this.esClient.delete({
       index: this.indexName,
       id,
-    })
+    });
   }
 }

@@ -7,7 +7,7 @@ export interface SearchResult {
   filename: string
   snippet: string
   score: number
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 interface SearchState {

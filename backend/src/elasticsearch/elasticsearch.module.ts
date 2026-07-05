@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common'
-import { ConfigModule, ConfigService } from '@nestjs/config'
-import { ElasticsearchModule as NestElasticsearchModule } from '@nestjs/elasticsearch'
-import { ElasticsearchService } from './elasticsearch.service'
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ElasticsearchModule as NestElasticsearchModule } from '@nestjs/elasticsearch';
+import { ElasticsearchService } from './elasticsearch.service';
 
 @Module({
   imports: [

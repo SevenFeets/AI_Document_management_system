@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { searchDocuments, setQuery, summarizeDocument } from '../store/slices/searchSlice'
-import { RootState } from '../store/store'
+import { AppDispatch, RootState } from '../store/store'
 import { Search, FileText, Sparkles } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function DocumentSearch() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const { query, results, loading, hasSearched, documentSummaries } = useSelector(
     (state: RootState) => state.search
   )
@@ -24,7 +24,7 @@ export default function DocumentSearch() {
 
     dispatch(setQuery(searchInput))
     try {
-      await dispatch(searchDocuments(searchInput) as any)
+      await dispatch(searchDocuments(searchInput))
     } catch (error) {
       toast.error('Search failed. Please try again.')
     }
@@ -39,7 +39,7 @@ export default function DocumentSearch() {
     setSummarizing(documentId)
     try {
       await dispatch(
-        summarizeDocument({ documentId, query }) as any
+        summarizeDocument({ documentId, query })
       ).unwrap()
       toast.success('Summary generated!', { duration: 5000 })
     } catch (error) {

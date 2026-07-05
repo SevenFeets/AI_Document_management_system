@@ -1,12 +1,12 @@
-import { Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
-import { TypeOrmModule } from '@nestjs/typeorm'
-import { DocumentsController } from '../../../src/documents/documents.controller'
-import { DocumentsService } from '../../../src/documents/documents.service'
-import { SearchController } from '../../../src/search/search.controller'
-import { SearchService } from '../../../src/search/search.service'
-import { DocumentEntity } from '../../../src/database/entities/document.entity'
-import { externalServiceMocks } from './mocks'
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { DocumentsController } from '../../../src/documents/documents.controller';
+import { DocumentsService } from '../../../src/documents/documents.service';
+import { SearchController } from '../../../src/search/search.controller';
+import { SearchService } from '../../../src/search/search.service';
+import { DocumentEntity } from '../../../src/database/entities/document.entity';
+import { externalServiceMocks } from './mocks';
 
 @Module({
   imports: [

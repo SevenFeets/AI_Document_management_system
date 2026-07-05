@@ -2,16 +2,12 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { fetchDocuments, refreshDocumentsSilently } from '../store/slices/documentsSlice'
-import { RootState } from '../store/store'
+import { AppDispatch, RootState } from '../store/store'
 import { FileText, Clock, CheckCircle, XCircle } from 'lucide-react'
 
 export default function Dashboard() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const { documents, loading } = useSelector((state: RootState) => state.documents)
-
-  useEffect(() => {
-    dispatch(fetchDocuments() as any)
-  }, [dispatch])
 
   const stats = {
     total: documents.length,
@@ -20,6 +16,19 @@ export default function Dashboard() {
     error: documents.filter((d) => d.status === 'error').length,
   }
 
+  useEffect(() => {
+    dispatch(fetchDocuments())
+  }, [dispatch])
+
+  useEffect(() => {
+    if (stats.processing > 0) {
+      const interval = setInterval(() => {
+        dispatch(refreshDocumentsSilently())
+      }, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [dispatch, stats.processing])
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -27,16 +36,6 @@ export default function Dashboard() {
       </div>
     )
   }
-
-  // Only poll when there are documents being processed (using silent refresh)
-  useEffect(() => {
-    if (stats.processing > 0) {
-      const interval = setInterval(() => {
-        dispatch(refreshDocumentsSilently() as any)
-      }, 5000)
-      return () => clearInterval(interval)
-    }
-  }, [dispatch, stats.processing])
 
   return (
     <div className="px-4 py-6">

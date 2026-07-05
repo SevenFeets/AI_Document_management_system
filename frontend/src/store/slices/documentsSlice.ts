@@ -10,7 +10,7 @@ export interface Document {
   uploadDate: string
   summary?: string
   status: 'processing' | 'indexed' | 'error'
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 interface DocumentsState {

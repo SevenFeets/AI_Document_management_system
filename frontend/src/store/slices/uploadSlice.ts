@@ -24,8 +24,9 @@ export const uploadDocument = createAsyncThunk(
         // Dispatch using action type string to avoid circular reference
         dispatch({ type: 'upload/setProgress', payload: percent })
       })
-    } catch (error: any) {
-      return rejectWithValue(error.message || 'Upload failed')
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Upload failed'
+      return rejectWithValue(message)
     }
   }
 )

@@ -3,14 +3,14 @@ import { useParams, Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchDocumentById, refreshDocumentByIdSilently } from '../store/slices/documentsSlice'
 import { summarizeDocument, setQuery } from '../store/slices/searchSlice'
-import { RootState } from '../store/store'
+import { AppDispatch, RootState } from '../store/store'
 import { ArrowLeft, FileText, Sparkles, Loader } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 
 export default function DocumentDetail() {
   const { id } = useParams<{ id: string }>()
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const { selectedDocument, loading } = useSelector(
     (state: RootState) => state.documents
   )
@@ -20,9 +20,18 @@ export default function DocumentDetail() {
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchDocumentById(id) as any)
+      dispatch(fetchDocumentById(id))
     }
   }, [id, dispatch])
+
+  useEffect(() => {
+    if (selectedDocument?.status === 'processing' && id) {
+      const interval = setInterval(() => {
+        dispatch(refreshDocumentByIdSilently(id))
+      }, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [id, dispatch, selectedDocument?.status])
 
   const handleGenerateSummary = async () => {
     if (!summaryQuery.trim() || !id) {
@@ -34,11 +43,11 @@ export default function DocumentDetail() {
     try {
       dispatch(setQuery(summaryQuery))
       const result = await dispatch(
-        summarizeDocument({ documentId: id, query: summaryQuery }) as any
+        summarizeDocument({ documentId: id, query: summaryQuery })
       ).unwrap()
       setSummary(result)
       toast.success('Summary generated successfully!')
-    } catch (error) {
+    } catch {
       toast.error('Failed to generate summary')
     } finally {
       setGeneratingSummary(false)
@@ -65,16 +74,6 @@ export default function DocumentDetail() {
       </div>
     )
   }
-
-  // Poll for status updates only when document is processing (using silent refresh)
-  useEffect(() => {
-    if (selectedDocument?.status === 'processing' && id) {
-      const interval = setInterval(() => {
-        dispatch(refreshDocumentByIdSilently(id) as any)
-      }, 5000)
-      return () => clearInterval(interval)
-    }
-  }, [id, dispatch, selectedDocument?.status])
 
   return (
     <div className="px-4 py-6">

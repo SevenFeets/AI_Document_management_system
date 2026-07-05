@@ -1,21 +1,21 @@
-import { Test, TestingModule } from '@nestjs/testing'
-import { SearchService } from './search.service'
-import { ElasticsearchService } from '../elasticsearch/elasticsearch.service'
-import { AIService } from '../ai/ai.service'
-import { DocumentsService } from '../documents/documents.service'
+import { Test, TestingModule } from '@nestjs/testing';
+import { SearchService } from './search.service';
+import { ElasticsearchService } from '../elasticsearch/elasticsearch.service';
+import { AIService } from '../ai/ai.service';
+import { DocumentsService } from '../documents/documents.service';
 
-const PLACEHOLDER_CONTENT = 'Document content would be fetched here'
+const PLACEHOLDER_CONTENT = 'Document content would be fetched here';
 
 describe('SearchService', () => {
-  let service: SearchService
-  let elasticsearchService: { search: jest.Mock }
-  let aiService: { summarizeDocument: jest.Mock }
-  let documentsService: { findOne: jest.Mock }
+  let service: SearchService;
+  let elasticsearchService: { search: jest.Mock };
+  let aiService: { summarizeDocument: jest.Mock };
+  let documentsService: { findOne: jest.Mock };
 
   beforeEach(async () => {
-    elasticsearchService = { search: jest.fn() }
-    aiService = { summarizeDocument: jest.fn() }
-    documentsService = { findOne: jest.fn() }
+    elasticsearchService = { search: jest.fn() };
+    aiService = { summarizeDocument: jest.fn() };
+    documentsService = { findOne: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -33,14 +33,14 @@ describe('SearchService', () => {
           useValue: documentsService,
         },
       ],
-    }).compile()
+    }).compile();
 
-    service = module.get<SearchService>(SearchService)
-  })
+    service = module.get<SearchService>(SearchService);
+  });
 
   describe('search', () => {
     it('should delegate query to elasticsearchService.search', async () => {
-      const query = 'machine learning'
+      const query = 'machine learning';
       const fakeResults = [
         {
           id: 'doc-1',
@@ -50,14 +50,14 @@ describe('SearchService', () => {
           score: 1.2,
           metadata: { fileType: 'application/pdf', uploadDate: '2026-01-01' },
         },
-      ]
-      elasticsearchService.search.mockResolvedValue(fakeResults)
+      ];
+      elasticsearchService.search.mockResolvedValue(fakeResults);
 
-      await service.search(query)
+      await service.search(query);
 
-      expect(elasticsearchService.search).toHaveBeenCalledTimes(1)
-      expect(elasticsearchService.search).toHaveBeenCalledWith(query)
-    })
+      expect(elasticsearchService.search).toHaveBeenCalledTimes(1);
+      expect(elasticsearchService.search).toHaveBeenCalledWith(query);
+    });
 
     it('should return elasticsearch search results', async () => {
       const fakeResults = [
@@ -69,16 +69,16 @@ describe('SearchService', () => {
           score: 0.9,
           metadata: { fileType: 'text/plain', uploadDate: '2026-02-01' },
         },
-      ]
-      elasticsearchService.search.mockResolvedValue(fakeResults)
+      ];
+      elasticsearchService.search.mockResolvedValue(fakeResults);
 
-      const result = await service.search('anything')
+      const result = await service.search('anything');
 
-      expect(result).toEqual(fakeResults)
-      expect(result).toHaveLength(1)
-      expect(result[0].id).toBe('doc-2')
-    })
-  })
+      expect(result).toEqual(fakeResults);
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe('doc-2');
+    });
+  });
 
   describe('summarizeDocument', () => {
     const fakeDocument = {
@@ -91,50 +91,50 @@ describe('SearchService', () => {
       status: 'indexed',
       summary: 'Existing summary',
       metadata: null,
-    }
+    };
 
     it('should load document via documentsService.findOne', async () => {
-      documentsService.findOne.mockResolvedValue(fakeDocument)
-      aiService.summarizeDocument.mockResolvedValue('AI summary')
+      documentsService.findOne.mockResolvedValue(fakeDocument);
+      aiService.summarizeDocument.mockResolvedValue('AI summary');
 
-      await service.summarizeDocument('doc-1', 'key findings')
+      await service.summarizeDocument('doc-1', 'key findings');
 
-      expect(documentsService.findOne).toHaveBeenCalledTimes(1)
-      expect(documentsService.findOne).toHaveBeenCalledWith('doc-1')
-    })
+      expect(documentsService.findOne).toHaveBeenCalledTimes(1);
+      expect(documentsService.findOne).toHaveBeenCalledWith('doc-1');
+    });
 
     it('should call aiService.summarizeDocument with placeholder content and query', async () => {
-      documentsService.findOne.mockResolvedValue(fakeDocument)
-      aiService.summarizeDocument.mockResolvedValue('AI summary')
+      documentsService.findOne.mockResolvedValue(fakeDocument);
+      aiService.summarizeDocument.mockResolvedValue('AI summary');
 
-      await service.summarizeDocument('doc-1', 'key findings')
+      await service.summarizeDocument('doc-1', 'key findings');
 
-      expect(aiService.summarizeDocument).toHaveBeenCalledTimes(1)
+      expect(aiService.summarizeDocument).toHaveBeenCalledTimes(1);
       expect(aiService.summarizeDocument).toHaveBeenCalledWith(
         PLACEHOLDER_CONTENT,
         'key findings',
-      )
-    })
+      );
+    });
 
     it('should return object with summary property', async () => {
-      documentsService.findOne.mockResolvedValue(fakeDocument)
-      aiService.summarizeDocument.mockResolvedValue('Final summary')
+      documentsService.findOne.mockResolvedValue(fakeDocument);
+      aiService.summarizeDocument.mockResolvedValue('Final summary');
 
-      const result = await service.summarizeDocument('doc-1', 'overview')
+      const result = await service.summarizeDocument('doc-1', 'overview');
 
-      expect(result).toEqual({ summary: 'Final summary' })
-    })
+      expect(result).toEqual({ summary: 'Final summary' });
+    });
 
     it('should propagate errors when document is not found', async () => {
       documentsService.findOne.mockRejectedValue(
         new Error('Document with ID doc-1 not found'),
-      )
+      );
 
       await expect(
         service.summarizeDocument('doc-1', 'overview'),
-      ).rejects.toThrow('Document with ID doc-1 not found')
+      ).rejects.toThrow('Document with ID doc-1 not found');
 
-      expect(aiService.summarizeDocument).not.toHaveBeenCalled()
-    })
-  })
-})
+      expect(aiService.summarizeDocument).not.toHaveBeenCalled();
+    });
+  });
+});

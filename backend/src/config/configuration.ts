@@ -1,7 +1,9 @@
 export default () => ({
   NODE_ENV: process.env.NODE_ENV || 'development',
   PORT: parseInt(process.env.PORT || '4000', 10),
-  LOG_LEVEL: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'log' : 'debug'),
+  LOG_LEVEL:
+    process.env.LOG_LEVEL ||
+    (process.env.NODE_ENV === 'production' ? 'log' : 'debug'),
   FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:3000',
   CORS_ORIGINS: process.env.CORS_ORIGINS || '',
 
@@ -26,4 +28,4 @@ export default () => ({
   GROQ_MODEL: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
   OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
   OPENAI_MODEL: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
-})
+});

@@ -20,4 +20,4 @@ export const PERF = {
 
   /** Parallel upload clients */
   concurrentUploadUsers: 5,
-}
+};

@@ -1,12 +1,12 @@
-import { Module, forwardRef } from '@nestjs/common'
-import { TypeOrmModule } from '@nestjs/typeorm'
-import { DocumentsController } from './documents.controller'
-import { DocumentsService } from './documents.service'
-import { DocumentEntity } from '../database/entities/document.entity'
-import { DocumentParserService } from './services/document-parser.service'
-import { S3Module } from '../s3/s3.module'
-import { QueueModule } from '../queue/queue.module'
-import { ElasticsearchModule } from '../elasticsearch/elasticsearch.module'
+import { Module, forwardRef } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { DocumentsController } from './documents.controller';
+import { DocumentsService } from './documents.service';
+import { DocumentEntity } from '../database/entities/document.entity';
+import { DocumentParserService } from './services/document-parser.service';
+import { S3Module } from '../s3/s3.module';
+import { QueueModule } from '../queue/queue.module';
+import { ElasticsearchModule } from '../elasticsearch/elasticsearch.module';
 
 @Module({
   imports: [
