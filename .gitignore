@@ -1,49 +1,81 @@
-# Dependencies
+# Dependencies (reinstall on each machine: npm ci)
 node_modules/
-package-lock.json
 yarn.lock
+pnpm-lock.yaml
 
-# Environment variables
+# Environment — copy from *.example on each machine; never commit secrets
 .env
 .env.local
 .env.*.local
+!.env.example
 
 # Build outputs
 dist/
 build/
-*.log
+dist-ssr/
+*.tsbuildinfo
 
-# IDE
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Test / coverage
+coverage/
+.nyc_output/
+.jest/
+
+# IDE (optional shared editor config may be committed via negation in subfolders)
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
+ehthumbs.db
 
-# Terraform
-terraform/.terraform/
-terraform/*.tfstate
-terraform/*.tfstate.backup
-terraform/.terraform.lock.hcl
-terraform/lambda-deploy/.terraform/
-terraform/lambda-deploy/*.tfstate*
+# Terraform — commit .terraform.lock.hcl; never commit state or secrets
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+!terraform.tfvars.example
+!**/terraform.tfvars.example
 terraform/lambda-deploy/lambda_function.zip
 terraform/lambda-function/node_modules/
 
-# Docker
-*.dockerignore
-
-# Testing
-coverage/
-.nyc_output/
+# Docker — machine-specific compose overrides
+docker-compose.override.yml
 
 # Local file uploads (when not using S3)
 uploads/
+backend/uploads/
 
+# Credentials
+*.pem
+*.key
+credentials.json
+
+# Project-local docs (not for repo sync)
 internalDocs/
 /features.md
 /backend/src/practice/

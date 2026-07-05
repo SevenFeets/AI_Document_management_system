@@ -2,6 +2,9 @@
 /dist
 /node_modules
 
+# Local uploads (S3 fallback)
+/uploads
+
 # Logs
 logs
 *.log
@@ -13,10 +16,12 @@ lerna-debug.log*
 
 # OS
 .DS_Store
+Thumbs.db
 
 # Tests
 /coverage
 /.nyc_output
+/.jest
 
 # IDEs and editors
 /.idea
@@ -27,14 +32,18 @@ lerna-debug.log*
 .settings/
 *.sublime-workspace
 
-# IDE - VSCode
+# IDE - VSCode (shared settings may be committed)
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# Environment variables
+# Environment — copy from .env.example on each machine
 .env
 .env.local
 .env.*.local
+!.env.example
+
+# TypeScript incremental build info
+*.tsbuildinfo
