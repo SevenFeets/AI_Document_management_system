@@ -77,5 +77,6 @@ credentials.json
 
 # Project-local docs (not for repo sync)
 internalDocs/
+conversationContext/
 /features.md
 /backend/src/practice/
