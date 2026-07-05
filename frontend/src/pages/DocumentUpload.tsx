@@ -2,19 +2,19 @@ import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDropzone } from 'react-dropzone'
 import { uploadDocument } from '../store/slices/uploadSlice'
-import { RootState } from '../store/store'
-import { Upload, FileText, X } from 'lucide-react'
+import { AppDispatch, RootState } from '../store/store'
+import { Upload, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function DocumentUpload() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const { uploading, progress, error } = useSelector((state: RootState) => state.upload)
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       for (const file of acceptedFiles) {
         try {
-          await dispatch(uploadDocument(file) as any)
+          await dispatch(uploadDocument(file))
           toast.success(`Successfully uploaded ${file.name}`)
         } catch (err) {
           toast.error(`Failed to upload ${file.name}`)

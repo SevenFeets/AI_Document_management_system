@@ -61,8 +61,12 @@ OPENAI_MODEL=gpt-3.5-turbo
 # Application
 PORT=4000
 NODE_ENV=development
+LOG_LEVEL=debug
 FRONTEND_URL=http://localhost:3000
+# CORS_ORIGINS=http://localhost:3000,https://app.example.com
 ```
+
+Copy from `backend/.env.example` as a starting point.
 
 ### Running the Application
 
@@ -74,6 +78,24 @@ npm run start:dev
 npm run build
 npm run start:prod
 ```
+
+### Testing
+
+```bash
+# Unit tests
+npm test
+
+# Integration tests (HTTP flows via supertest; requires PostgreSQL)
+npm run test:integration
+
+# End-to-end API workflows (file types, large files, concurrency)
+npm run test:e2e
+
+# Performance benchmarks (latency thresholds in test/performance/support/thresholds.ts)
+npm run test:performance
+```
+
+Integration tests use `DB_NAME=document_search_test` by default. Start Postgres (e.g. `docker-compose up -d postgres`) and ensure `DB_*` env vars match your instance.
 
 ## API Endpoints
 

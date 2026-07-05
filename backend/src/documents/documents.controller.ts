@@ -9,9 +9,9 @@ import {
   ParseFilePipe,
   MaxFileSizeValidator,
   FileTypeValidator,
-} from '@nestjs/common'
-import { FileInterceptor } from '@nestjs/platform-express'
-import { DocumentsService } from './documents.service'
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { DocumentsService } from './documents.service';
 
 @Controller('api/documents')
 export class DocumentsController {
@@ -19,12 +19,12 @@ export class DocumentsController {
 
   @Get()
   async getAllDocuments() {
-    return await this.documentsService.findAll()
+    return await this.documentsService.findAll();
   }
 
   @Get(':id')
   async getDocumentById(@Param('id') id: string) {
-    return await this.documentsService.findOne(id)
+    return await this.documentsService.findOne(id);
   }
 
   @Post('upload')
@@ -38,15 +38,26 @@ export class DocumentsController {
             fileType: /(pdf|doc|docx|txt)/,
           }),
         ],
+        fileIsRequired: true,
       }),
     )
     file: Express.Multer.File,
   ) {
-    return await this.documentsService.uploadDocument(file)
+    return await this.documentsService.uploadDocument(file);
   }
 
   @Delete(':id')
   async deleteDocument(@Param('id') id: string) {
-    return await this.documentsService.delete(id)
+    return await this.documentsService.delete(id);
+  }
+
+  @Post('reindex')
+  async reindexDocuments() {
+    return await this.documentsService.reindexAllDocuments();
+  }
+
+  @Post(':id/reindex')
+  async reindexDocument(@Param('id') id: string) {
+    return await this.documentsService.reindexDocument(id);
   }
 }

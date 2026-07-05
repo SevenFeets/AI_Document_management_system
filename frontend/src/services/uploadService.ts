@@ -1,7 +1,11 @@
 import { api } from './api'
+import type { AxiosProgressEvent } from 'axios'
 
 export const uploadService = {
-  uploadFile: async (file: File): Promise<{ id: string; message: string }> => {
+  uploadFile: async (
+    file: File,
+    onProgress?: (percent: number) => void
+  ): Promise<{ id: string; message: string }> => {
     const formData = new FormData()
     formData.append('file', file)
 
@@ -9,10 +13,10 @@ export const uploadService = {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-      onUploadProgress: (progressEvent) => {
-        if (progressEvent.total) {
-          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          // Progress will be handled by the slice
+      onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+        if (progressEvent.total && onProgress) {
+          const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          onProgress(percent)
         }
       },
     })

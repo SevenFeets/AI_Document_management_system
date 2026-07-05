@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common'
-import { InjectQueue } from '@nestjs/bull'
-import { Queue } from 'bull'
+import { Injectable } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 @Injectable()
 export class QueueService {
@@ -13,13 +13,13 @@ export class QueueService {
     return await this.documentQueue.add('process-document', {
       documentId,
       s3Key,
-    })
+    });
   }
 
   async getJobStatus(jobId: string) {
-    const job = await this.documentQueue.getJob(jobId)
+    const job = await this.documentQueue.getJob(jobId);
     if (!job) {
-      return null
+      return null;
     }
 
     return {
@@ -27,6 +27,6 @@ export class QueueService {
       state: await job.getState(),
       progress: job.progress,
       data: job.data,
-    }
+    };
   }
 }

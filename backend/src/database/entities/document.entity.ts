@@ -4,7 +4,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-} from 'typeorm'
+} from 'typeorm';
 
 export enum DocumentStatus {
   PROCESSING = 'processing',
@@ -15,45 +15,45 @@ export enum DocumentStatus {
 @Entity('documents')
 export class DocumentEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string
+  id: string;
 
   @Column()
-  title: string
+  title: string;
 
   @Column()
-  filename: string
+  filename: string;
 
   @Column()
-  fileType: string
+  fileType: string;
 
   @Column('bigint')
-  fileSize: number
+  fileSize: number;
 
   @Column()
-  s3Key: string
+  s3Key: string;
 
   @Column()
-  s3Bucket: string
+  s3Bucket: string;
 
   @Column({
     type: 'enum',
     enum: DocumentStatus,
     default: DocumentStatus.PROCESSING,
   })
-  status: DocumentStatus
+  status: DocumentStatus;
 
   @Column('text', { nullable: true })
-  summary: string
+  summary: string;
 
   @Column('jsonb', { nullable: true })
-  metadata: Record<string, any>
+  metadata: Record<string, any>;
 
   @Column('text', { nullable: true })
-  extractedText: string
+  extractedText: string;
 
   @CreateDateColumn()
-  uploadDate: Date
+  uploadDate: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date
+  updatedAt: Date;
 }

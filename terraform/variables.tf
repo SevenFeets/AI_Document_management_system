@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS region"
   type        = string
-  default     = "us-east-1"
+  default     = "il-central-1"
 }
 
 variable "environment" {
@@ -17,9 +17,10 @@ variable "s3_bucket_name" {
 }
 
 variable "ec2_ami_id" {
-  description = "EC2 AMI ID"
+  description = "EC2 AMI ID (leave null to use latest Amazon Linux 2 in aws_region)"
   type        = string
-  default     = "ami-0c55b159cbfafe1f0" # Amazon Linux 2
+  default     = null
+  nullable    = true
 }
 
 variable "ec2_instance_type" {

@@ -1,0 +1,55 @@
+---
+description: Routes tasks to the correct project skill and memory-bank context before acting
+alwaysApply: true
+---
+
+# Skill Router
+
+Before implementing or advising, read the matching skill(s) from `.cursor/skills/` and apply their patterns.
+
+## Routing Table
+
+| Task or context | Skill to read |
+|-----------------|---------------|
+| Login, JWT, guards, RBAC, protected routes | `auth-patterns` |
+| Git commits, PRs, branch workflow | `git-deploy` |
+| CI/CD, GitHub Actions secrets | `git-deploy` |
+| Docker Compose, local dev stack | `git-deploy` |
+| Terraform, AWS infra (VPC, EC2, S3, Lambda) | `git-deploy` |
+| Kubernetes manifests, kubectl deploy/rollback | `git-deploy` |
+| Grafana dashboards, observability | `git-deploy` (see `monitoring/`) |
+| NestJS modules, controllers, services, DTOs | `backend-patterns` |
+| Bull queues, Redis jobs, document processor | `backend-patterns` |
+| S3 uploads, presigned URLs, AWS SDK v3 | `backend-patterns` |
+| LangChain, OpenAI summarization | `backend-patterns` |
+| React pages, components, routing, Tailwind UI | `frontend-patterns` |
+| Redux slices, store, async thunks | `frontend-patterns` |
+| Axios services, API layer | `frontend-patterns` |
+| TypeORM entities, PostgreSQL, migrations | `database-patterns` |
+| Elasticsearch indexing, search queries | `database-patterns` |
+
+Package versions and dependency notes: `.cursor/rules/tech-stack.mdc` and `TECH_STACK.md`. Skills cover *how we use* them in this repo.
+
+## File-Path Hints
+
+- `backend/**` → `backend-patterns` (+ `database-patterns` if touching entities/repos)
+- `frontend/**` → `frontend-patterns`
+- `frontend/src/store/**` → `frontend-patterns`
+- `docker-compose.yml`, `backend/Dockerfile`, `frontend/Dockerfile` → `git-deploy`
+- `kubernetes/**`, `terraform/**`, `terraform/lambda-function/**` → `git-deploy` (+ `backend-patterns` if changing Lambda handler logic)
+- `.github/**` → `git-deploy`
+- `monitoring/**` → `git-deploy`
+- `backend/src/database/**`, `backend/src/elasticsearch/**` → `database-patterns`
+- `backend/src/s3/**`, `backend/src/queue/**`, `backend/src/ai/**` → `backend-patterns`
+- `backend/src/auth/**` (future) → `auth-patterns`
+
+## Session Context
+
+At the start of each session, read `memory-bank/activeContext.md` for current focus and next steps. Consult other memory-bank files when you need product, architecture, or tech details.
+
+## Rules
+
+1. **Read before write** — load the skill(s) that match the task; do not improvise project conventions.
+2. **Multiple skills** — cross-cutting work (e.g. auth + backend) may require more than one skill.
+3. **No match** — if no skill applies, follow `.cursor/rules/` and existing code patterns in the repo.
+4. **Learning mode** — follow the escalation ladder in `learning.mdc`; full code only when the user says "stuck".

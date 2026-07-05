@@ -1,6 +1,5 @@
 # Dependencies
 node_modules/
-package-lock.json
 yarn.lock
 
 # Environment variables
@@ -25,10 +24,15 @@ build/
 Thumbs.db
 
 # Terraform
+terraform/terraform.tfvars
+terraform/lambda-deploy/terraform.tfvars
 terraform/.terraform/
 terraform/*.tfstate
 terraform/*.tfstate.backup
-terraform/.terraform.lock.hcl
+terraform/lambda-deploy/.terraform/
+terraform/lambda-deploy/*.tfstate*
+terraform/lambda-deploy/lambda_function.zip
+terraform/lambda-function/node_modules/
 
 # Docker
 *.dockerignore
@@ -37,4 +41,11 @@ terraform/.terraform.lock.hcl
 coverage/
 .nyc_output/
 
+# Local file uploads (when not using S3)
+uploads/
+
 internalDocs/
+/features.md
+/backend/src/practice/
+
+# delete this comment

@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { searchDocuments, setQuery, summarizeDocument } from '../store/slices/searchSlice'
-import { RootState } from '../store/store'
+import { AppDispatch, RootState } from '../store/store'
 import { Search, FileText, Sparkles } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function DocumentSearch() {
-  const dispatch = useDispatch()
-  const { query, results, loading, hasSearched } = useSelector(
+  const dispatch = useDispatch<AppDispatch>()
+  const { query, results, loading, hasSearched, documentSummaries } = useSelector(
     (state: RootState) => state.search
   )
   const [searchInput, setSearchInput] = useState(query)
@@ -24,7 +24,7 @@ export default function DocumentSearch() {
 
     dispatch(setQuery(searchInput))
     try {
-      await dispatch(searchDocuments(searchInput) as any)
+      await dispatch(searchDocuments(searchInput))
     } catch (error) {
       toast.error('Search failed. Please try again.')
     }
@@ -38,8 +38,8 @@ export default function DocumentSearch() {
 
     setSummarizing(documentId)
     try {
-      const summary = await dispatch(
-        summarizeDocument({ documentId, query }) as any
+      await dispatch(
+        summarizeDocument({ documentId, query })
       ).unwrap()
       toast.success('Summary generated!', { duration: 5000 })
     } catch (error) {
@@ -113,6 +113,14 @@ export default function DocumentSearch() {
                       </Link>
                       <p className="text-sm text-gray-500 mb-2">{result.filename}</p>
                       <p className="text-gray-700 mb-3">{result.snippet}</p>
+                      {documentSummaries[result.id] && (
+                        <div className="mb-3 p-3 bg-primary-50 border border-primary-200 rounded-lg">
+                          <p className="text-xs font-semibold text-primary-700 mb-1">AI Summary</p>
+                          <p className="text-gray-700 text-sm whitespace-pre-wrap">
+                            {documentSummaries[result.id]}
+                          </p>
+                        </div>
+                      )}
                       <div className="flex items-center gap-4 text-xs text-gray-500">
                         <span>Relevance: {(result.score * 100).toFixed(1)}%</span>
                       </div>

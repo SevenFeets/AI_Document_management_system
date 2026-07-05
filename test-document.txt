@@ -1,0 +1,15 @@
+This is a test document for the document upload functionality.
+
+It contains sample text that will be indexed and searchable in the system.
+
+Testing the upload endpoint at POST /api/documents/upload.
+
+This document will be:
+1. Uploaded to S3 (or local storage)
+2. Saved to PostgreSQL database
+3. Queued for processing
+4. Parsed for text extraction
+5. Sent to AI for summarization
+6. Indexed in Elasticsearch for search
+
+Test completed successfully!

@@ -10,7 +10,7 @@ export interface Document {
   uploadDate: string
   summary?: string
   status: 'processing' | 'indexed' | 'error'
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 interface DocumentsState {
@@ -36,6 +36,21 @@ export const fetchDocuments = createAsyncThunk(
 
 export const fetchDocumentById = createAsyncThunk(
   'documents/fetchById',
+  async (id: string) => {
+    return await documentService.getDocumentById(id)
+  }
+)
+
+// Silent refresh actions for polling (no loading state)
+export const refreshDocumentsSilently = createAsyncThunk(
+  'documents/refreshSilently',
+  async () => {
+    return await documentService.getAllDocuments()
+  }
+)
+
+export const refreshDocumentByIdSilently = createAsyncThunk(
+  'documents/refreshByIdSilently',
   async (id: string) => {
     return await documentService.getDocumentById(id)
   }
@@ -67,6 +82,13 @@ const documentsSlice = createSlice({
         state.error = action.error.message || 'Failed to fetch documents'
       })
       .addCase(fetchDocumentById.fulfilled, (state, action) => {
+        state.selectedDocument = action.payload
+      })
+      // Silent refresh - update data without loading state
+      .addCase(refreshDocumentsSilently.fulfilled, (state, action) => {
+        state.documents = action.payload
+      })
+      .addCase(refreshDocumentByIdSilently.fulfilled, (state, action) => {
         state.selectedDocument = action.payload
       })
   },

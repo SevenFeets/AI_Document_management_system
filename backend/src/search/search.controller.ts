@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Query, Body } from '@nestjs/common'
-import { SearchService } from './search.service'
+import { Controller, Get, Post, Query, Body } from '@nestjs/common';
+import { SearchService } from './search.service';
 
 @Controller('api/search')
 export class SearchController {
@@ -8,18 +8,16 @@ export class SearchController {
   @Get()
   async search(@Query('q') query: string) {
     if (!query) {
-      return []
+      return [];
     }
-    return await this.searchService.search(query)
+    return await this.searchService.search(query);
   }
 
   @Post('summarize')
-  async summarize(
-    @Body() body: { documentId: string; query: string },
-  ) {
+  async summarize(@Body() body: { documentId: string; query: string }) {
     return await this.searchService.summarizeDocument(
       body.documentId,
       body.query,
-    )
+    );
   }
 }

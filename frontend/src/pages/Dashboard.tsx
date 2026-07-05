@@ -1,17 +1,13 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { fetchDocuments } from '../store/slices/documentsSlice'
-import { RootState } from '../store/store'
+import { fetchDocuments, refreshDocumentsSilently } from '../store/slices/documentsSlice'
+import { AppDispatch, RootState } from '../store/store'
 import { FileText, Clock, CheckCircle, XCircle } from 'lucide-react'
 
 export default function Dashboard() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const { documents, loading } = useSelector((state: RootState) => state.documents)
-
-  useEffect(() => {
-    dispatch(fetchDocuments() as any)
-  }, [dispatch])
 
   const stats = {
     total: documents.length,
@@ -19,6 +15,19 @@ export default function Dashboard() {
     indexed: documents.filter((d) => d.status === 'indexed').length,
     error: documents.filter((d) => d.status === 'error').length,
   }
+
+  useEffect(() => {
+    dispatch(fetchDocuments())
+  }, [dispatch])
+
+  useEffect(() => {
+    if (stats.processing > 0) {
+      const interval = setInterval(() => {
+        dispatch(refreshDocumentsSilently())
+      }, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [dispatch, stats.processing])
 
   if (loading) {
     return (

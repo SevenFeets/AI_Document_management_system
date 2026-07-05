@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Technology Stack & Dependencies
 
-This document outlines the complete technology stack, dependency versions, and best practices for the AI-powered Document Search & Summarization application.
+This document outlines dependency best practices when editing `package.json` files. For the full technology inventory, see [TECH_STACK.md](../../TECH_STACK.md).
 
 ## Stack Overview
 

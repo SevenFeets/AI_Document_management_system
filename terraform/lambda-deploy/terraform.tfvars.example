@@ -1,0 +1,10 @@
+aws_region         = "il-central-1"
+environment        = "development"
+s3_bucket_name     = "ai-pdss"
+s3_prefix          = "documents/"
+function_name      = "ai-pdss-document-processor"
+lambda_timeout     = 120
+lambda_memory_size = 512
+
+# Set true only after testing invoke; see lambda-function/README.md
+enable_s3_trigger  = false

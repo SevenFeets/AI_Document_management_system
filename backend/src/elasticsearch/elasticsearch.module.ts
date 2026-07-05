@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common'
-import { ConfigModule, ConfigService } from '@nestjs/config'
-import { ElasticsearchModule as NestElasticsearchModule } from '@nestjs/elasticsearch'
-import { ElasticsearchService } from './elasticsearch.service'
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ElasticsearchModule as NestElasticsearchModule } from '@nestjs/elasticsearch';
+import { ElasticsearchService } from './elasticsearch.service';
 
 @Module({
   imports: [
@@ -12,7 +12,7 @@ import { ElasticsearchService } from './elasticsearch.service'
         maxRetries: 10,
         requestTimeout: 60000,
         pingTimeout: 3000,
-        sniffOnStart: true,
+        sniffOnStart: false, // Disabled for single-node local development
       }),
       inject: [ConfigService],
     }),

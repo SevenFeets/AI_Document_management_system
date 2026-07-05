@@ -1,0 +1,36 @@
+---
+description: Save this chat's context to conversationContext (user must @-mention this rule)
+alwaysApply: false
+---
+
+# Conversation Context — Save (manual)
+
+When the user **@-mentions this rule**, run the steps below **before** answering — even if they only asked a question.
+
+## Bind `{Title}` (same order as read rule)
+
+1. `conversationContext/{Title}/` @-mention in **this message**
+2. `Conversation title: …` or `כותרת שיחה: …`
+3. Topic phrase from the user's message (e.g. `implementation_plan build order`)
+4. Chat tab title only if explicitly visible in context
+5. Else ask once
+
+## On every @-mention (required)
+
+Use the **Write** tool if needed:
+
+1. Create `conversationContext/{Title}/` and `_index.md` if missing
+2. Set **Goal** from the user's message if empty
+3. **Status:** `in progress`; **Last updated:** today
+
+
+Do **not** skip because the user did not say "save".
+
+## Full persist (user says "save" / "save context" / end of session)
+
+Merge **this session** into **Decisions**, **Done**, **Open / next**, **Files touched**. Compress **Done** if over ~80 lines. Do not duplicate `memory-bank/`.
+
+## Do not save
+
+- Raw prompts/responses
+- Secrets or credentials
